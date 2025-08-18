@@ -2,7 +2,7 @@
 
 # 基本设置
 edition = "2021"       # 使用 Rust 2021 edition
-max_width = 180        # 每行最大字符数（建议 80~120）
+max_width = 120        # 每行最大字符数（建议 80~120）
 hard_tabs = false      # 使用空格而不是制表符
 tab_spaces = 4         # 一个缩进等于 4 个空格
 newline_style = "Unix" # 换行符使用 \n（Linux/macOS/WSL 风格）
