@@ -1,7 +1,7 @@
 # .rustfmt.toml
 
 # 基本设置
-edition = "2021"       # 使用 Rust 2021 edition
+edition = "2024"
 max_width = 120        # 每行最大字符数（建议 80~120）
 hard_tabs = false      # 使用空格而不是制表符
 tab_spaces = 4         # 一个缩进等于 4 个空格
