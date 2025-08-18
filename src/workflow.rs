@@ -2,12 +2,14 @@ use std::{
     convert::Infallible, sync::{Arc, OnceLock}
 };
 
+use async_openai::{Client, config::OpenAIConfig, types::CreateCompletionRequestArgs};
 use axum::{
-    Json, extract::Path, response::{Sse, sse::Event}
+    Json, extract::Path, http::header, response::{IntoResponse, Sse, sse::Event}
 };
-use futures::stream::Stream;
+use futures::{StreamExt, stream::Stream};
 use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
+use serde_json::json;
+use tokio::sync::{RwLock, mpsc::UnboundedSender};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::error::AppError;
@@ -136,7 +138,7 @@ pub async fn get(Path(id): Path<String>) -> Result<Json<Workflow>, AppError> {
 
 /// 执行
 
-pub async fn execute(Path(id): Path<String>) -> Sse<impl Stream<Item=Result<Event, Infallible>>> {
+pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel();
     tokio::spawn(async move {
         let data = WORKFLOWS
@@ -169,14 +171,7 @@ pub async fn execute(Path(id): Path<String>) -> Sse<impl Stream<Item=Result<Even
         loop {
             for node_id in &start_nodes {
                 let node = nodes.iter().find(|node| node.id == *node_id).unwrap();
-                let event = Event::default()
-                    .data(format!("开始执行节点：{}", node.id))
-                    .event("node_progress")
-                    .id(node_id);
-
-                if sender.send(Ok(event)).is_err() {
-                    log::info!("发送开始事件失败");
-                }
+                excute_node(node, &sender).await.unwrap();
             }
             start_nodes = edges
                 .iter()
@@ -190,5 +185,91 @@ pub async fn execute(Path(id): Path<String>) -> Sse<impl Stream<Item=Result<Even
     });
 
     let stream = UnboundedReceiverStream::new(receiver);
-    Sse::new(stream)
+    (
+        [
+            (header::CONTENT_TYPE, "text/event-stream; charset=utf-8"),
+            (header::CACHE_CONTROL, "no-cache"),
+            (header::CONNECTION, "keep-alive"),
+        ],
+        Sse::new(stream),
+    )
+}
+
+async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<()> {
+    send_data(
+        json!({
+            "type": "node_start",
+            "nodeId": node.id,
+            "nodeType": node.kind,
+            "timestamp": chrono::Utc::now().to_rfc3339()
+        }),
+        sender,
+    )?;
+    match node.kind.as_str() {
+        "input" => {
+            send_data(
+                json!({
+                    "type": "input",
+                    "data": "默认输入内容",
+                    "nodeId": node.id,
+                    "timestamp": chrono::Utc::now().to_rfc3339()
+                }),
+                sender,
+            )?;
+        }
+        "ai-model" => {
+            let config = OpenAIConfig::new()
+                .with_api_key("None")
+                .with_api_base("http://222.190.139.186:11436/v1");
+            let client = Client::with_config(config);
+
+            let request = CreateCompletionRequestArgs::default()
+                .model("qwen3:14b")
+                .n(1)
+                .prompt("你好呀")
+                .stream(true)
+                .max_tokens(1024_u32)
+                .build()?;
+
+            let mut stream = client.completions().create_stream(request).await?;
+
+            while let Some(response) = stream.next().await {
+                match response {
+                    Ok(ccr) => ccr.choices.iter().for_each(|c| {
+                        // print!("{}", c.text);
+                        send_data(
+                            json!({
+                                "type": "ai_response_chunk",
+                                "data": c.text,
+                                "nodeId": node.id,
+                                "chunkIndex": c.index
+                            }),
+                            sender,
+                        )
+                        .unwrap();
+                    }),
+                    Err(e) => eprintln!("{}", e),
+                }
+            }
+        }
+        _ => {}
+    }
+    send_data(
+        json!({
+            "type": "node_complete",
+            "nodeId": node.id,
+            "nodeType": "input",
+            "timestamp": chrono::Utc::now().to_rfc3339()
+        }),
+        sender,
+    )?;
+    Ok(())
+}
+
+fn send_data<T: Serialize>(data: T, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<()> {
+    let msg = Event::default().json_data(data)?;
+    if sender.send(Ok(msg)).is_err() {
+        log::info!("发送事件失败");
+    }
+    Ok(())
 }
