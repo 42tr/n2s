@@ -19,7 +19,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/workflows/{id}", get(workflow::get))
         .route("/workflows/{id}", delete(workflow::delete))
         .layer(cors);
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
+    axum::serve(listener, app).await?;
     Ok(())
 }

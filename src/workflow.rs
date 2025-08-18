@@ -11,29 +11,35 @@ static WORKFLOWS: OnceLock<Arc<RwLock<Vec<Workflow>>>> = OnceLock::new();
 static WORKFLOW_FILE: &'static str = "workflows.json";
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Position {
+    x: f32,
+    y: f32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Node {
-    id: u32,
+    id: String,
+    #[serde(rename = "type")]
     kind: String,
-    position: (f32, f32),
+    position: Position,
     config: std::collections::HashMap<String, String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Edge {
-    source_id: u32,
-    target_id: u32,
+    source: String,
+    target: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Workflow {
-    id: u32,
+    id: String,
     nodes: Vec<Node>,
     edges: Vec<Edge>,
     created_at: Option<chrono::DateTime<chrono::Utc>>,
     updated_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
-// 模拟一个初始化函数
 fn load_config() -> Vec<Workflow> {
     if !std::path::Path::new(WORKFLOW_FILE).exists() {
         return Vec::new();
@@ -53,9 +59,13 @@ pub async fn create(Json(mut workflow): Json<Workflow>) -> Result<Json<Workflow>
     workflow.created_at = Some(created_at);
     workflow.updated_at = Some(updated_at);
     let mut data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).write().await;
-    data.push(workflow.clone());
-    save_config(&data);
-    Ok(Json(workflow))
+    if let Some(_) = data.iter().position(|w| w.id == workflow.id) {
+        Err(AppError::Conflict(format!("Workflow 已存在: id={}", workflow.id)))
+    } else {
+        data.push(workflow.clone());
+        save_config(&data);
+        Ok(Json(workflow))
+    }
 }
 
 pub async fn update(Json(mut workflow): Json<Workflow>) -> Result<Json<Workflow>, AppError> {
@@ -71,7 +81,7 @@ pub async fn update(Json(mut workflow): Json<Workflow>) -> Result<Json<Workflow>
     }
 }
 
-pub async fn delete(Path(id): Path<u32>) -> Result<(), AppError> {
+pub async fn delete(Path(id): Path<String>) -> Result<(), AppError> {
     let mut data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).write().await;
     if let Some(index) = data.iter().position(|w| w.id == id) {
         data.remove(index);
@@ -87,7 +97,7 @@ pub async fn list() -> Result<Json<Vec<Workflow>>, AppError> {
     Ok(Json(data.clone()))
 }
 
-pub async fn get(Path(id): Path<u32>) -> Result<Json<Workflow>, AppError> {
+pub async fn get(Path(id): Path<String>) -> Result<Json<Workflow>, AppError> {
     let data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).read().await;
     if let Some(workflow) = data.iter().find(|w| w.id == id) {
         Ok(Json(workflow.clone()))

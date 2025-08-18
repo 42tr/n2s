@@ -1,5 +1,3 @@
-// src/error.rs
-
 use std::fmt;
 use anyhow::Error;
 use axum::{
@@ -9,6 +7,9 @@ use axum::{
 
 #[derive(Debug)]
 pub enum AppError {
+    /// 已存在
+    Conflict(String),
+
     /// 资源未找到
     NotFound(String),
 
@@ -25,10 +26,11 @@ pub enum AppError {
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let (status, message) = match &self {
-            AppError::NotFound(_) => (StatusCode::NOT_FOUND, "Not Found"),
-            AppError::BadRequest(_) => (StatusCode::BAD_REQUEST, "Bad Request"),
-            AppError::Unauthorized(_) => (StatusCode::UNAUTHORIZED, "Unauthorized"),
-            AppError::Internal(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error"),
+            AppError::Conflict(msg) => (StatusCode::CONFLICT, format!("Conflict: {msg}")),
+            AppError::NotFound(msg) => (StatusCode::NOT_FOUND, format!("Not Found: {msg}")),
+            AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, format!("Bad Request: {msg}")),
+            AppError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, format!("Unauthorized: {msg}")),
+            AppError::Internal(msg) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Internal Server Error: {msg}")),
         };
 
         eprintln!("AppError: {:#}", self);
@@ -41,6 +43,7 @@ impl IntoResponse for AppError {
 impl fmt::Display for AppError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            AppError::Conflict(msg) => write!(f, "Conflict: {}", msg),
             AppError::NotFound(msg) => write!(f, "Not Found: {}", msg),
             AppError::BadRequest(msg) => write!(f, "Bad Request: {}", msg),
             AppError::Unauthorized(msg) => write!(f, "Unauthorized: {}", msg),
