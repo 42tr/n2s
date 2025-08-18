@@ -1,4 +1,8 @@
 use tower_http::cors::{Any, CorsLayer};
+use axum::routing::{get, put, post, delete};
+
+mod workflow;
+mod error;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -8,7 +12,12 @@ async fn main() -> anyhow::Result<()> {
         .allow_headers(Any)
         .allow_credentials(false);
     let app = axum::Router::new()
-        .route("/health", axum::routing::get(|| async { "OK" }))
+        .route("/health", get(|| async { "OK" }))
+        .route("/workflows", get(workflow::list))
+        .route("/workflows", put(workflow::create))
+        .route("/workflows", post(workflow::update))
+        .route("/workflows/{id}", get(workflow::get))
+        .route("/workflows/{id}", delete(workflow::delete))
         .layer(cors);
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();

@@ -17,8 +17,8 @@ spaces_around_ranges = false # 不在 range 周围加空格: `..` 而不是 ` ..
 
 # 控制结构格式
 indent_style = "Block"                 # 使用块式缩进（而非 Visual）
-control_brace_style = "AlwaysNextLine" # if/else、fn 的 `{` 放下一行
-brace_style = "SameLineWhere"          # 结构体、enum 的 `{` 放同一行（除非有 where）
+control_brace_style = "PreferSameLine" # if/else、fn 的 `{` 放下一行
+brace_style = "PreferSameLine"         # 结构体、enum 的 `{` 放同一行（除非有 where）
 
 # 函数相关
 fn_args_layout = "Compressed"  # 函数参数紧凑布局（少换行）
