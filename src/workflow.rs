@@ -6,7 +6,7 @@ use async_openai::{Client, config::OpenAIConfig, types::CreateCompletionRequestA
 use axum::{
     Json, extract::Path, http::header, response::{IntoResponse, Sse, sse::Event}
 };
-use futures::{StreamExt, stream::Stream};
+use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tokio::sync::{RwLock, mpsc::UnboundedSender};
