@@ -1,8 +1,10 @@
-use tower_http::cors::{Any, CorsLayer};
-use axum::routing::{get, put, post, delete};
+use axum::routing::{Router, delete, get, post, put};
+use tower_http::{
+    cors::{Any, CorsLayer}, services::ServeDir
+};
 
-mod workflow;
 mod error;
+mod workflow;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -11,15 +13,22 @@ async fn main() -> anyhow::Result<()> {
         .allow_methods(Any)
         .allow_headers(Any)
         .allow_credentials(false);
-    let app = axum::Router::new()
+
+    let api_router = Router::new()
         .route("/health", get(|| async { "OK" }))
         .route("/workflows", get(workflow::list))
-        .route("/workflows", put(workflow::create))
-        .route("/workflows", post(workflow::update))
-        .route("/workflows/{id}", get(workflow::get))
-        .route("/workflows/{id}", delete(workflow::delete))
-        .route("/workflows/{id}/run", get(workflow::execute))
+        .route("/workflow", put(workflow::create))
+        .route("/workflow", post(workflow::update))
+        .route("/workflow/run", post(workflow::execute_workflow))
+        .route("/workflow/{id}", get(workflow::get))
+        .route("/workflow/{id}", delete(workflow::delete))
+        .route("/workflow/{id}/run", get(workflow::execute));
+
+    let app = Router::new()
+        .nest("/api", api_router)
+        .fallback_service(ServeDir::new("../frontend/dist").append_index_html_on_directories(true))
         .layer(cors);
+
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
     axum::serve(listener, app).await?;
     Ok(())

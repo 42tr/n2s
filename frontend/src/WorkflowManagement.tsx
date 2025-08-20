@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './WorkflowManagement.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./WorkflowManagement.css";
 
 interface Workflow {
   id: string;
@@ -16,7 +16,7 @@ interface Execution {
   timestamp: string;
   input: any;
   output?: any;
-  status: 'completed' | 'failed';
+  status: "completed" | "failed";
   duration?: number;
   error?: string;
 }
@@ -24,11 +24,13 @@ interface Execution {
 const WorkflowManagement: React.FC = () => {
   const navigate = useNavigate();
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
-  const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
+  const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(
+    null,
+  );
   const [executions, setExecutions] = useState<Execution[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingWorkflow, setEditingWorkflow] = useState<Workflow | null>(null);
-  const [newWorkflowName, setNewWorkflowName] = useState('');
+  const [newWorkflowName, setNewWorkflowName] = useState("");
   const [showNodeDetails, setShowNodeDetails] = useState(false);
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,13 +39,15 @@ const WorkflowManagement: React.FC = () => {
   // 加载所有工作流
   const loadWorkflows = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/workflow/list');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/workflows`,
+      );
       if (response.ok) {
         const data = await response.json();
         setWorkflows(data);
       }
     } catch (error) {
-      console.error('加载工作流失败:', error);
+      console.error("加载工作流失败:", error);
     }
   };
 
@@ -51,13 +55,15 @@ const WorkflowManagement: React.FC = () => {
   const loadExecutions = async (workflowId: string) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3001/api/workflow/${workflowId}/history`);
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/workflow/${workflowId}/history`,
+      );
       if (response.ok) {
         const data = await response.json();
         setExecutions(data.executions || []);
       }
     } catch (error) {
-      console.error('加载执行历史失败:', error);
+      console.error("加载执行历史失败:", error);
     } finally {
       setLoading(false);
     }
@@ -65,15 +71,18 @@ const WorkflowManagement: React.FC = () => {
 
   // 删除工作流
   const deleteWorkflow = async (workflowId: string) => {
-    if (!confirm('确定要删除这个工作流吗？此操作不可恢复。')) {
+    if (!confirm("确定要删除这个工作流吗？此操作不可恢复。")) {
       return;
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/workflow/${workflowId}`, {
-        method: 'DELETE'
-      });
-      
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/workflow/${workflowId}`,
+        {
+          method: "DELETE",
+        },
+      );
+
       if (response.ok) {
         await loadWorkflows();
         if (selectedWorkflow?.id === workflowId) {
@@ -81,35 +90,38 @@ const WorkflowManagement: React.FC = () => {
           setExecutions([]);
         }
       } else {
-        alert('删除失败');
+        alert("删除失败");
       }
     } catch (error) {
-      console.error('删除工作流失败:', error);
-      alert('删除失败');
+      console.error("删除工作流失败:", error);
+      alert("删除失败");
     }
   };
 
   // 更新工作流名称
   const updateWorkflowName = async (workflowId: string, newName: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/workflow/${workflowId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/workflow/${workflowId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name: newName }),
         },
-        body: JSON.stringify({ name: newName })
-      });
-      
+      );
+
       if (response.ok) {
         await loadWorkflows();
         setEditingWorkflow(null);
-        setNewWorkflowName('');
+        setNewWorkflowName("");
       } else {
-        alert('更新失败');
+        alert("更新失败");
       }
     } catch (error) {
-      console.error('更新工作流失败:', error);
-      alert('更新失败');
+      console.error("更新工作流失败:", error);
+      alert("更新失败");
     }
   };
 
@@ -117,35 +129,38 @@ const WorkflowManagement: React.FC = () => {
   const openInEditor = (workflow?: Workflow) => {
     if (workflow) {
       // 编辑现有工作流
-      sessionStorage.setItem('editWorkflow', JSON.stringify(workflow));
-      navigate('/editor/' + workflow.id);
+      sessionStorage.setItem("editWorkflow", JSON.stringify(workflow));
+      navigate("/editor/" + workflow.id);
     } else {
       // 新建工作流
-      navigate('/editor');
+      navigate("/editor");
     }
   };
 
   // 运行工作流
   const runWorkflow = async (workflowId: string, inputData: any = {}) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/workflow/${workflowId}/run`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/workflow/${workflowId}/run`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(inputData),
         },
-        body: JSON.stringify(inputData)
-      });
+      );
 
       if (response.ok) {
         // 刷新执行历史
         await loadExecutions(workflowId);
-        alert('工作流执行完成');
+        alert("工作流执行完成");
       } else {
-        alert('执行失败');
+        alert("执行失败");
       }
     } catch (error) {
-      console.error('执行工作流失败:', error);
-      alert('执行失败');
+      console.error("执行工作流失败:", error);
+      alert("执行失败");
     }
   };
 
@@ -160,16 +175,16 @@ const WorkflowManagement: React.FC = () => {
   }, [selectedWorkflow]);
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return '未知时间';
+    if (!dateString) return "未知时间";
     try {
-      return new Date(dateString).toLocaleString('zh-CN');
+      return new Date(dateString).toLocaleString("zh-CN");
     } catch (error) {
-      return '时间格式错误';
+      return "时间格式错误";
     }
   };
 
   const formatDuration = (duration?: number) => {
-    if (!duration) return '未知';
+    if (!duration) return "未知";
     if (duration < 1000) return `${duration}ms`;
     return `${(duration / 1000).toFixed(1)}s`;
   };
@@ -177,7 +192,10 @@ const WorkflowManagement: React.FC = () => {
   // 分页逻辑
   const indexOfLastWorkflow = currentPage * workflowsPerPage;
   const indexOfFirstWorkflow = indexOfLastWorkflow - workflowsPerPage;
-  const currentWorkflows = (workflows || []).slice(indexOfFirstWorkflow, indexOfLastWorkflow);
+  const currentWorkflows = (workflows || []).slice(
+    indexOfFirstWorkflow,
+    indexOfLastWorkflow,
+  );
   const totalPages = Math.ceil((workflows || []).length / workflowsPerPage);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
@@ -191,10 +209,7 @@ const WorkflowManagement: React.FC = () => {
     <div className="workflow-management">
       <div className="header">
         <h1>AI工作流编排平台</h1>
-        <button 
-          onClick={() => openInEditor()}
-          className="new-workflow-btn"
-        >
+        <button onClick={() => openInEditor()} className="new-workflow-btn">
           + 新建工作流
         </button>
       </div>
@@ -204,9 +219,9 @@ const WorkflowManagement: React.FC = () => {
           <h2>所有工作流 ({(workflows || []).length})</h2>
           <div className="workflows-list">
             {currentWorkflows.map((workflow) => (
-              <div 
+              <div
                 key={workflow.id}
-                className={`workflow-card ${selectedWorkflow?.id === workflow.id ? 'selected' : ''}`}
+                className={`workflow-card ${selectedWorkflow?.id === workflow.id ? "selected" : ""}`}
                 onClick={() => setSelectedWorkflow(workflow)}
               >
                 <div className="workflow-header">
@@ -218,20 +233,26 @@ const WorkflowManagement: React.FC = () => {
                         onChange={(e) => setNewWorkflowName(e.target.value)}
                         onBlur={() => {
                           if (newWorkflowName.trim()) {
-                            updateWorkflowName(workflow.id, newWorkflowName.trim());
+                            updateWorkflowName(
+                              workflow.id,
+                              newWorkflowName.trim(),
+                            );
                           } else {
                             setEditingWorkflow(null);
-                            setNewWorkflowName('');
+                            setNewWorkflowName("");
                           }
                         }}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
+                          if (e.key === "Enter") {
                             if (newWorkflowName.trim()) {
-                              updateWorkflowName(workflow.id, newWorkflowName.trim());
+                              updateWorkflowName(
+                                workflow.id,
+                                newWorkflowName.trim(),
+                              );
                             }
-                          } else if (e.key === 'Escape') {
+                          } else if (e.key === "Escape") {
                             setEditingWorkflow(null);
-                            setNewWorkflowName('');
+                            setNewWorkflowName("");
                           }
                         }}
                         autoFocus
@@ -240,7 +261,7 @@ const WorkflowManagement: React.FC = () => {
                   ) : (
                     <h3>{workflow.name}</h3>
                   )}
-                  
+
                   <div className="workflow-actions">
                     <button
                       onClick={(e) => {
@@ -285,7 +306,7 @@ const WorkflowManagement: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                
+
                 <div className="workflow-info">
                   <div className="info-item">
                     <span className="label">节点数:</span>
@@ -297,41 +318,48 @@ const WorkflowManagement: React.FC = () => {
                   </div>
                   <div className="info-item">
                     <span className="label">创建时间:</span>
-                    <span className="value">{formatDate(workflow.createdAt)}</span>
+                    <span className="value">
+                      {formatDate(workflow.createdAt)}
+                    </span>
                   </div>
                   <div className="info-item">
                     <span className="label">API地址:</span>
-                    <span className="value api-url">/api/workflow/{workflow.id}/run</span>
+                    <span className="value api-url">
+                      /api/workflow/{workflow.id}/run
+                    </span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-          
+
           {/* 分页控件 */}
           {totalPages > 1 && (
             <div className="pagination">
-              <button 
+              <button
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
                 className="pagination-btn"
               >
                 上一页
               </button>
-              
+
               <div className="page-numbers">
-                {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
+                {Array.from(
+                  { length: totalPages },
+                  (_, index) => index + 1,
+                ).map((pageNumber) => (
                   <button
                     key={pageNumber}
                     onClick={() => paginate(pageNumber)}
-                    className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}
+                    className={`page-number ${currentPage === pageNumber ? "active" : ""}`}
                   >
                     {pageNumber}
                   </button>
                 ))}
               </div>
-              
-              <button 
+
+              <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}
                 className="pagination-btn"
@@ -358,9 +386,13 @@ const WorkflowManagement: React.FC = () => {
                       {(selectedWorkflow.nodes || []).map((node, index) => (
                         <div key={index} className="node-summary-card">
                           <div className="node-header">
-                            <span className="node-type">{node.type || '未知类型'}</span>
+                            <span className="node-type">
+                              {node.type || "未知类型"}
+                            </span>
                             <span className="node-config">
-                              {Object.keys(node.config || {}).length > 0 ? '已配置' : '未配置'}
+                              {Object.keys(node.config || {}).length > 0
+                                ? "已配置"
+                                : "未配置"}
                             </span>
                             <div className="node-actions">
                               <button
@@ -397,11 +429,11 @@ const WorkflowManagement: React.FC = () => {
                       className="refresh-btn"
                       disabled={loading}
                     >
-                      {loading ? '刷新中...' : '刷新'}
+                      {loading ? "刷新中..." : "刷新"}
                     </button>
                   </div>
                 </div>
-                
+
                 {loading ? (
                   <div className="loading">加载中...</div>
                 ) : !executions || executions.length === 0 ? (
@@ -409,31 +441,39 @@ const WorkflowManagement: React.FC = () => {
                 ) : (
                   <div className="executions-list">
                     {executions.map((execution, index) => (
-                      <div 
-                        key={execution.id || index} 
+                      <div
+                        key={execution.id || index}
                         className={`execution-card ${execution.status}`}
                       >
                         <div className="execution-header">
                           <div className="execution-time">
-                            {formatDate(execution.timestamp || new Date().toISOString())}
+                            {formatDate(
+                              execution.timestamp || new Date().toISOString(),
+                            )}
                           </div>
                           <div className="execution-status">
-                            <span className={`status-badge ${execution.status || 'failed'}`}>
-                              {(execution.status === 'completed') ? '成功' : '失败'}
+                            <span
+                              className={`status-badge ${execution.status || "failed"}`}
+                            >
+                              {execution.status === "completed"
+                                ? "成功"
+                                : "失败"}
                             </span>
                             <span className="duration">
                               {formatDuration(execution.duration)}
                             </span>
                           </div>
                         </div>
-                        
+
                         {execution.input && (
                           <div className="execution-input">
                             <strong>输入:</strong>
-                            <pre>{JSON.stringify(execution.input, null, 2)}</pre>
+                            <pre>
+                              {JSON.stringify(execution.input, null, 2)}
+                            </pre>
                           </div>
                         )}
-                        
+
                         {execution.error && (
                           <div className="execution-error">
                             <strong>错误:</strong>
@@ -457,11 +497,14 @@ const WorkflowManagement: React.FC = () => {
 
       {/* 节点详情模态框 */}
       {showNodeDetails && selectedNode && (
-        <div className="modal-overlay" onClick={() => setShowNodeDetails(false)}>
+        <div
+          className="modal-overlay"
+          onClick={() => setShowNodeDetails(false)}
+        >
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>节点详情 - {selectedNode.type || '未知类型'}</h3>
-              <button 
+              <h3>节点详情 - {selectedNode.type || "未知类型"}</h3>
+              <button
                 onClick={() => setShowNodeDetails(false)}
                 className="close-btn"
               >
@@ -474,39 +517,47 @@ const WorkflowManagement: React.FC = () => {
                 <div className="detail-grid">
                   <div className="detail-row">
                     <span className="label">节点类型:</span>
-                    <span className="value">{selectedNode.type || '未知类型'}</span>
+                    <span className="value">
+                      {selectedNode.type || "未知类型"}
+                    </span>
                   </div>
                   <div className="detail-row">
                     <span className="label">节点ID:</span>
-                    <span className="value">{selectedNode.id || '无ID'}</span>
+                    <span className="value">{selectedNode.id || "无ID"}</span>
                   </div>
                   <div className="detail-row">
                     <span className="label">配置状态:</span>
-                    <span className={`value ${Object.keys(selectedNode.config || {}).length > 0 ? 'configured' : 'unconfigured'}`}>
-                      {Object.keys(selectedNode.config || {}).length > 0 ? '已配置' : '未配置'}
+                    <span
+                      className={`value ${Object.keys(selectedNode.config || {}).length > 0 ? "configured" : "unconfigured"}`}
+                    >
+                      {Object.keys(selectedNode.config || {}).length > 0
+                        ? "已配置"
+                        : "未配置"}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {selectedNode.config && Object.keys(selectedNode.config).length > 0 && (
-                <div className="node-detail-section">
-                  <h4>配置详情</h4>
-                  <div className="config-display">
-                    {Object.entries(selectedNode.config).map(([key, value]) => (
-                      <div key={key} className="config-item">
-                        <span className="config-key">{key}:</span>
-                        <span className="config-value">
-                          {typeof value === 'string' && value.length > 100 
-                            ? `${value.substring(0, 100)}...` 
-                            : String(value)
-                          }
-                        </span>
-                      </div>
-                    ))}
+              {selectedNode.config &&
+                Object.keys(selectedNode.config).length > 0 && (
+                  <div className="node-detail-section">
+                    <h4>配置详情</h4>
+                    <div className="config-display">
+                      {Object.entries(selectedNode.config).map(
+                        ([key, value]) => (
+                          <div key={key} className="config-item">
+                            <span className="config-key">{key}:</span>
+                            <span className="config-value">
+                              {typeof value === "string" && value.length > 100
+                                ? `${value.substring(0, 100)}...`
+                                : String(value)}
+                            </span>
+                          </div>
+                        ),
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {selectedNode.position && (
                 <div className="node-detail-section">
@@ -525,7 +576,7 @@ const WorkflowManagement: React.FC = () => {
               )}
             </div>
             <div className="modal-footer">
-              <button 
+              <button
                 onClick={() => {
                   setShowNodeDetails(false);
                   if (selectedWorkflow) {
@@ -536,7 +587,7 @@ const WorkflowManagement: React.FC = () => {
               >
                 在编辑器中编辑
               </button>
-              <button 
+              <button
                 onClick={() => setShowNodeDetails(false)}
                 className="close-btn"
               >

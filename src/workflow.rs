@@ -138,6 +138,45 @@ pub async fn get(Path(id): Path<String>) -> Result<Json<Workflow>, AppError> {
 
 /// 执行
 
+pub async fn execute_workflow(Json(workflow): Json<Workflow>) -> impl IntoResponse {
+    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel();
+    tokio::spawn(async move {
+        let edges = workflow.edges.clone();
+        let nodes = workflow.nodes.clone();
+        let filter_nodes: Vec<String> = edges.iter().map(|edge| edge.target.clone()).collect();
+        let mut start_nodes: Vec<String> = nodes
+            .iter()
+            .filter(|node| !filter_nodes.contains(&node.id))
+            .map(|node| node.id.clone())
+            .collect();
+        loop {
+            for node_id in &start_nodes {
+                let node = nodes.iter().find(|node| node.id == *node_id).unwrap();
+                excute_node(node, &sender).await.unwrap();
+            }
+            start_nodes = edges
+                .iter()
+                .filter(|edge| start_nodes.contains(&edge.source))
+                .map(|edge| edge.target.clone())
+                .collect();
+            if start_nodes.is_empty() {
+                break;
+            }
+        }
+        send_string("[DONE]".to_string(), &sender).unwrap();
+    });
+
+    let stream = UnboundedReceiverStream::new(receiver);
+    (
+        [
+            (header::CONTENT_TYPE, "text/event-stream; charset=utf-8"),
+            (header::CACHE_CONTROL, "no-cache"),
+            (header::CONNECTION, "keep-alive"),
+        ],
+        Sse::new(stream),
+    )
+}
+
 pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel();
     tokio::spawn(async move {
@@ -182,6 +221,7 @@ pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
                 break;
             }
         }
+        send_string("[DONE]".to_string(), &sender).unwrap();
     });
 
     let stream = UnboundedReceiverStream::new(receiver);
@@ -196,7 +236,7 @@ pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
 }
 
 async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<()> {
-    send_data(
+    send_json(
         json!({
             "type": "node_start",
             "nodeId": node.id,
@@ -207,7 +247,7 @@ async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infalli
     )?;
     match node.kind.as_str() {
         "input" => {
-            send_data(
+            send_json(
                 json!({
                     "type": "input",
                     "data": "默认输入内容",
@@ -237,7 +277,7 @@ async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infalli
                 match response {
                     Ok(ccr) => ccr.choices.iter().for_each(|c| {
                         // print!("{}", c.text);
-                        send_data(
+                        send_json(
                             json!({
                                 "type": "ai_response_chunk",
                                 "data": c.text,
@@ -254,7 +294,7 @@ async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infalli
         }
         _ => {}
     }
-    send_data(
+    send_json(
         json!({
             "type": "node_complete",
             "nodeId": node.id,
@@ -266,8 +306,16 @@ async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infalli
     Ok(())
 }
 
-fn send_data<T: Serialize>(data: T, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<()> {
+fn send_json<T: Serialize>(data: T, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<()> {
     let msg = Event::default().json_data(data)?;
+    if sender.send(Ok(msg)).is_err() {
+        log::info!("发送事件失败");
+    }
+    Ok(())
+}
+
+fn send_string(data: String, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<()> {
+    let msg = Event::default().data(data);
     if sender.send(Ok(msg)).is_err() {
         log::info!("发送事件失败");
     }

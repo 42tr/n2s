@@ -49,7 +49,7 @@ const ExecutionHistory: React.FC = () => {
     
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3001/api/workflow/${id}/history`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/workflow/${id}/history`);
       if (response.ok) {
         const data = await response.json();
         const executionsList = data.executions || [];

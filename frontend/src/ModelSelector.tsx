@@ -40,7 +40,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
         ...(baseUrl && { baseUrl })
       });
       
-      const response = await fetch(`http://localhost:3001/api/models?${params}`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/models?${params}`);
       
       if (!response.ok) {
         throw new Error('获取模型列表失败');
