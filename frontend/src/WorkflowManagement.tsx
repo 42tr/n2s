@@ -60,7 +60,7 @@ const WorkflowManagement: React.FC = () => {
       );
       if (response.ok) {
         const data = await response.json();
-        setExecutions(data.executions || []);
+        setExecutions(data || []);
       }
     } catch (error) {
       console.error("加载执行历史失败:", error);
