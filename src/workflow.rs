@@ -53,7 +53,7 @@ pub struct Workflow {
     updated_at: Option<DateTime<Utc>>,
 }
 
-/// 执行记录
+/// 执行记录增查
 
 fn load_execution_config() -> Vec<Execution> {
     if !std::path::Path::new(EXECUTION_FILE).exists() {
@@ -75,6 +75,19 @@ async fn create_execution(execution: Execution) {
         .await;
     data.push(execution);
     save_execution_config(&data);
+}
+
+pub async fn get_executions(Path(id): Path<String>) -> Result<Json<Vec<Execution>>, AppError> {
+    let data = EXECUTIONS
+        .get_or_init(|| Arc::new(RwLock::new(load_execution_config())))
+        .read()
+        .await;
+    let executions: Vec<Execution> = data
+        .iter()
+        .filter(|exe| exe.workflow_id == id)
+        .map(|exe| exe.clone())
+        .collect();
+    Ok(Json(executions))
 }
 
 /// 工作流增删改查
