@@ -316,10 +316,10 @@ const WorkflowManagement: React.FC = () => {
                     <span className="label">连接数:</span>
                     <span className="value">{workflow.edges?.length || 0}</span>
                   </div>
-                  <div className="info-item">
-                    <span className="label">创建时间:</span>
+                  <div className="info-item full-width">
+                    <span className="label">更新时间:</span>
                     <span className="value">
-                      {formatDate(workflow.createdAt)}
+                      {formatDate(workflow.updatedAt ?? workflow.createdAt)}
                     </span>
                   </div>
                   <div className="info-item">

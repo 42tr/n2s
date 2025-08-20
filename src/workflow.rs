@@ -41,9 +41,12 @@ pub struct Edge {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Workflow {
     id: String,
+    name: String,
     nodes: Vec<Node>,
     edges: Vec<Edge>,
+    #[serde(rename = "createdAt")]
     created_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(rename = "updatedAt")]
     updated_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
