@@ -146,6 +146,7 @@ const WorkflowEditor: React.FC = () => {
 
     const workflowData = {
       id: id,
+      name: workflowName,
       nodes: nodes.map((node) => ({
         id: node.id,
         type: node.data.nodeType,

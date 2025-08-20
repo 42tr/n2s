@@ -1,0 +1,2122 @@
+[
+  {
+    "id": "b7957714-9671-4810-81cf-2561e6d0d6fc",
+    "workflowId": "md42h99en3nq04pgna",
+    "input": {},
+    "logs": [
+      {
+        "timestamp": "2025-08-20T09:52:48.218309Z",
+        "data": {
+          "type": "node_start",
+          "nodeId": "input-1752555721767",
+          "nodeType": "input",
+          "result": null,
+          "data": null
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:48.218538Z",
+        "data": {
+          "type": "input",
+          "nodeId": "input-1752555721767",
+          "nodeType": null,
+          "result": null,
+          "data": "默认输入内容"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:48.218597Z",
+        "data": {
+          "type": "node_complete",
+          "nodeId": "input-1752555721767",
+          "nodeType": "input",
+          "result": null,
+          "data": null
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:48.218659Z",
+        "data": {
+          "type": "node_start",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": "ai-model",
+          "result": null,
+          "data": null
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.038140Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "<think>"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.053475Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "\n"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.072596Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "好的"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.087879Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.106463Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "用户"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.125579Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "发"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.143438Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "来"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.159510Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "“"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.177747Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "你好"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.195225Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "呀"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.211022Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "”，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.229030Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "看起来"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.245171Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "是一个"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.262735Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "友"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.279410Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "好的"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.296178Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "问候"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.316411Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "。"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.333844Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "首先"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.351028Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.368484Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "我"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.385464Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "需要"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.402022Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "回应"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.419371Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "这个"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.437251Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "问候"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.454043Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.471396Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "保持"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.487971Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "友好"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.507149Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "和"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.523758Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "热情"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.540338Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "。"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.556766Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "接下来"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.573135Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.590177Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "我"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.607550Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "需要"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.624909Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "考虑"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.641993Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "用户"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.660417Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "可能"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.675899Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "的需求"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.692936Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "。"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.710121Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "用户"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.727512Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "可能"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.744755Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "只是"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.762296Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "想"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.779653Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "开始"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.795743Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "对话"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.813479Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.831972Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "或者"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.849404Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "有"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.864229Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "具体"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.881130Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "的问题"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.898486Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "需要"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.916223Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "帮助"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.933037Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "。\n\n"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.950092Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "接下来"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.967291Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:52.983992Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "我"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.003924Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "应该"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.024061Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "用"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.044237Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "自然"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.065203Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "、"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.085256Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "口语"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.104828Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "化"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.122964Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "的方式"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.141495Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "回应"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.158079Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.188125Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "避免"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.192445Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "使用"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.210204Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "过于"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.227990Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "正式"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.244720Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "或"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.261235Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "机械"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.278133Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "的语言"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.295581Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "。"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.313160Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "同时"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.329887Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.354083Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "要"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.372034Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "保持"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.397535Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "简洁"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.407267Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.426335Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "不"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.445552Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "添加"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.462249Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "不必要的"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.480690Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "信息"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.498022Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "。"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.515893Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "可能"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.532235Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "需要"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.550910Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "询问"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.568637Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "用户"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.585055Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "是否有"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.602875Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "需要"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.621396Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "帮助"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.637518Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "的地方"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.655697Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.673154Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "或者"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.690853Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "引导"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.707921Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "用户"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.725984Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "进入"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.746132Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "更"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.764747Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "具体的"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.783359Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "对话"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.802599Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "方向"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.817767Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "。\n\n"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.835594Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "还要"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.851681Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "注意"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.869040Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "用户"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.886985Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "的情绪"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.904433Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.924661Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "如果"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.945115Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "用户"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.963351Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "表现出"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.981051Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "需要"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:53.998990Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "帮助"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.015286Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "的"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.033235Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "迹象"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.054825Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.076181Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "应及时"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.094928Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "提供"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.115054Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "支持"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.134460Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "。"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.154821Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "如果没有"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.177948Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "明确"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.194731Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "的问题"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.214912Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.235735Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "可以"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.252989Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "保持"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.275294Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "开放"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.294903Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "式的"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.319290Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "对话"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.328166Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.345550Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "让用户"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.362916Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "感到"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.379120Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "被"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.396717Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "欢迎"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.414167Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "和"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.431785Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "鼓励"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.447435Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "继续"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.464723Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "交流"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.482577Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "。\n\n"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.502677Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "最后"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.523026Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.543954Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "确保"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.564476Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "回应"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.584165Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "符合"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.604770Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "中文"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.624366Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "的"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.644163Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "表达"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.662322Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "习惯"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.679832Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.697957Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "避免"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.719759Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "翻译"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.732512Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "腔"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.763530Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.767798Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "使用"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.811342Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "常见的"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.813086Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "问候"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.819476Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "语"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.843637Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "和"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.857824Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "表达"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.890871Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "方式"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.900949Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "。"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.905963Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "比如"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.922429Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "使用"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.939883Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "“"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.956393Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "你好"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.973681Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "呀"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:54.992104Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.009509Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "很高兴"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.027001Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "见到"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.044171Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "你"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.061784Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "！”"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.081725Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "这样的"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.099151Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "回应"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.114622Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.132661Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "既"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.149422Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "亲切"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.166984Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "又"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.183867Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "自然"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.202163Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "。\n"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.218964Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "</think>"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.236128Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "\n\n"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.254688Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "你好"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.271846Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "呀"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.291499Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.307305Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "很高兴"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.325124Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "见到"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.342603Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "你"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.361666Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "！"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.383308Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "今天"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.402018Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "过得"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.422674Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "怎么样"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.443338Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "？"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.463686Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "😊"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.483016Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": " 如果"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.503620Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "有任何"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.524264Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "问题"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.548364Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "或者"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.566342Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "需要"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.584336Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "帮助"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.604054Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "，"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.625090Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "随时"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.642709Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "告诉我"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.660288Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "哦"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.677099Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": "！"
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.702754Z",
+        "data": {
+          "type": "ai_response_chunk",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": null,
+          "result": null,
+          "data": ""
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.703003Z",
+        "data": {
+          "type": "node_complete",
+          "nodeId": "ai-model-1752555722776",
+          "nodeType": "input",
+          "result": null,
+          "data": null
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.703190Z",
+        "data": {
+          "type": "node_start",
+          "nodeId": "output-1752555725995",
+          "nodeType": "output",
+          "result": null,
+          "data": null
+        }
+      },
+      {
+        "timestamp": "2025-08-20T09:52:55.703214Z",
+        "data": {
+          "type": "node_complete",
+          "nodeId": "output-1752555725995",
+          "nodeType": "input",
+          "result": null,
+          "data": null
+        }
+      }
+    ],
+    "duration": 7486,
+    "status": "completed",
+    "timestamp": "2025-08-20T09:52:48.216359Z"
+  }
+]
