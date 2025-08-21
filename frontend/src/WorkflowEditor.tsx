@@ -229,6 +229,7 @@ const WorkflowEditor: React.FC = () => {
                 );
               }
             } catch (e) {
+              console.log("error", e);
               console.log("SSE文本:", data);
             }
           }

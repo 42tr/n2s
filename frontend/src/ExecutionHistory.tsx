@@ -40,8 +40,8 @@ const ExecutionHistory: React.FC = () => {
     null,
   );
   const [loading, setLoading] = useState(false);
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [executionsPerPage] = useState(10);
 
@@ -87,7 +87,7 @@ const ExecutionHistory: React.FC = () => {
         const { nodeId, type, data: logData, output, error } = log.data;
 
         if (nodeId) {
-          let currentStatus = nodeStatusMap.get(nodeId) || {
+          const currentStatus = nodeStatusMap.get(nodeId) || {
             status: "idle",
             output: "",
             error: "",
@@ -224,7 +224,7 @@ const ExecutionHistory: React.FC = () => {
     try {
       return new Date(dateString).toLocaleString("zh-CN");
     } catch (error) {
-      return "时间格式错误";
+      return "时间格式错误" + error;
     }
   };
 

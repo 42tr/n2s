@@ -139,7 +139,7 @@ const WorkflowManagement: React.FC = () => {
   };
 
   // 运行工作流
-  const runWorkflow = async (workflowId: string, inputData: any = {}) => {
+  const runWorkflow = async (workflowId: string) => {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/workflow/${workflowId}/run`,
@@ -179,6 +179,7 @@ const WorkflowManagement: React.FC = () => {
     try {
       return new Date(dateString).toLocaleString("zh-CN");
     } catch (error) {
+      console.log(error);
       return "时间格式错误";
     }
   };
