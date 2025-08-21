@@ -1,8 +1,8 @@
 use std::fmt;
+
 use anyhow::Error;
 use axum::{
-    http::StatusCode,
-    response::{IntoResponse, Response},
+    http::StatusCode, response::{IntoResponse, Response}
 };
 
 #[derive(Debug)]
@@ -30,7 +30,10 @@ impl IntoResponse for AppError {
             AppError::NotFound(msg) => (StatusCode::NOT_FOUND, format!("Not Found: {msg}")),
             AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, format!("Bad Request: {msg}")),
             AppError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, format!("Unauthorized: {msg}")),
-            AppError::Internal(msg) => (StatusCode::INTERNAL_SERVER_ERROR, format!("Internal Server Error: {msg}")),
+            AppError::Internal(msg) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Internal Server Error: {msg}"),
+            ),
         };
 
         eprintln!("AppError: {:#}", self);

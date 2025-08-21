@@ -39,25 +39,14 @@ fn save_execution_config(executions: &Vec<Execution>) {
 }
 
 async fn create_execution(execution: Execution) {
-    let mut data = EXECUTIONS
-        .get_or_init(|| Arc::new(RwLock::new(load_execution_config())))
-        .write()
-        .await;
+    let mut data = EXECUTIONS.get_or_init(|| Arc::new(RwLock::new(load_execution_config()))).write().await;
     data.push(execution);
     save_execution_config(&data);
 }
 
 pub async fn get_executions(Path(id): Path<String>) -> Result<Json<Vec<Execution>>, AppError> {
-    let data = EXECUTIONS
-        .get_or_init(|| Arc::new(RwLock::new(load_execution_config())))
-        .read()
-        .await;
-    let executions: Vec<Execution> = data
-        .iter()
-        .filter(|exe| exe.workflow_id == id)
-        .map(|exe| exe.clone())
-        .rev()
-        .collect();
+    let data = EXECUTIONS.get_or_init(|| Arc::new(RwLock::new(load_execution_config()))).read().await;
+    let executions: Vec<Execution> = data.iter().filter(|exe| exe.workflow_id == id).map(|exe| exe.clone()).rev().collect();
     Ok(Json(executions))
 }
 
@@ -80,10 +69,7 @@ pub async fn create_or_update(Json(mut workflow): Json<Workflow>) -> Result<Json
     if workflow.id.is_some() {
         let updated_at = Utc::now();
         workflow.updated_at = Some(updated_at);
-        let mut data = WORKFLOWS
-            .get_or_init(|| Arc::new(RwLock::new(load_config())))
-            .write()
-            .await;
+        let mut data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).write().await;
         if let Some(index) = data.iter().position(|w| w.id == workflow.id) {
             data[index] = workflow.clone();
             save_config(&data);
@@ -100,10 +86,7 @@ pub async fn create_or_update(Json(mut workflow): Json<Workflow>) -> Result<Json
     let updated_at = created_at;
     workflow.created_at = Some(created_at);
     workflow.updated_at = Some(updated_at);
-    let mut data = WORKFLOWS
-        .get_or_init(|| Arc::new(RwLock::new(load_config())))
-        .write()
-        .await;
+    let mut data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).write().await;
     if let Some(_) = data.iter().position(|w| w.id == workflow.id) {
         Err(AppError::Conflict(format!(
             "Workflow 已存在: id={}",
@@ -117,10 +100,7 @@ pub async fn create_or_update(Json(mut workflow): Json<Workflow>) -> Result<Json
 }
 
 pub async fn delete(Path(id): Path<String>) -> Result<(), AppError> {
-    let mut data = WORKFLOWS
-        .get_or_init(|| Arc::new(RwLock::new(load_config())))
-        .write()
-        .await;
+    let mut data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).write().await;
     if let Some(index) = data.iter().position(|w| w.id == Some(id.clone())) {
         data.remove(index);
         save_config(&data);
@@ -131,25 +111,15 @@ pub async fn delete(Path(id): Path<String>) -> Result<(), AppError> {
 }
 
 pub async fn list() -> Result<Json<Vec<Workflow>>, AppError> {
-    let data = WORKFLOWS
-        .get_or_init(|| Arc::new(RwLock::new(load_config())))
-        .read()
-        .await;
+    let data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).read().await;
     let mut response = data.clone();
     response.reverse();
     Ok(Json(response))
 }
 
 pub async fn get(Path(id): Path<String>) -> Result<Json<Workflow>, AppError> {
-    let data = WORKFLOWS
-        .get_or_init(|| Arc::new(RwLock::new(load_config())))
-        .read()
-        .await;
-    if let Some(workflow) = data.iter().find(|w| w.id == Some(id.clone())) {
-        Ok(Json(workflow.clone()))
-    } else {
-        Err(AppError::NotFound(format!("Workflow 不存在: id={}", id)))
-    }
+    let data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).read().await;
+    if let Some(workflow) = data.iter().find(|w| w.id == Some(id.clone())) { Ok(Json(workflow.clone())) } else { Err(AppError::NotFound(format!("Workflow 不存在: id={}", id))) }
 }
 
 /// 执行
@@ -160,21 +130,13 @@ pub async fn execute_workflow(Json(workflow): Json<Workflow>) -> impl IntoRespon
         let edges = workflow.edges.clone();
         let nodes = workflow.nodes.clone();
         let filter_nodes: Vec<String> = edges.iter().map(|edge| edge.target.clone()).collect();
-        let mut start_nodes: Vec<String> = nodes
-            .iter()
-            .filter(|node| !filter_nodes.contains(&node.id))
-            .map(|node| node.id.clone())
-            .collect();
+        let mut start_nodes: Vec<String> = nodes.iter().filter(|node| !filter_nodes.contains(&node.id)).map(|node| node.id.clone()).collect();
         loop {
             for node_id in &start_nodes {
                 let node = nodes.iter().find(|node| node.id == *node_id).unwrap();
                 excute_node(node, &sender).await.unwrap();
             }
-            start_nodes = edges
-                .iter()
-                .filter(|edge| start_nodes.contains(&edge.source))
-                .map(|edge| edge.target.clone())
-                .collect();
+            start_nodes = edges.iter().filter(|edge| start_nodes.contains(&edge.source)).map(|edge| edge.target.clone()).collect();
             if start_nodes.is_empty() {
                 break;
             }
@@ -184,11 +146,7 @@ pub async fn execute_workflow(Json(workflow): Json<Workflow>) -> impl IntoRespon
 
     let stream = UnboundedReceiverStream::new(receiver);
     (
-        [
-            (header::CONTENT_TYPE, "text/event-stream; charset=utf-8"),
-            (header::CACHE_CONTROL, "no-cache"),
-            (header::CONNECTION, "keep-alive"),
-        ],
+        [(header::CONTENT_TYPE, "text/event-stream; charset=utf-8"), (header::CACHE_CONTROL, "no-cache"), (header::CONNECTION, "keep-alive")],
         Sse::new(stream),
     )
 }
@@ -197,10 +155,7 @@ pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
     let start_time = Utc::now();
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel();
     tokio::spawn(async move {
-        let data = WORKFLOWS
-            .get_or_init(|| Arc::new(RwLock::new(load_config())))
-            .write()
-            .await;
+        let data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).write().await;
         let index = match data.iter().position(|w| w.id == Some(id.clone())) {
             Some(idx) => idx,
             None => {
@@ -212,11 +167,7 @@ pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
         let edges = workflow.edges.clone();
         let nodes = workflow.nodes.clone();
         let filter_nodes: Vec<String> = edges.iter().map(|edge| edge.target.clone()).collect();
-        let mut start_nodes: Vec<String> = nodes
-            .iter()
-            .filter(|node| !filter_nodes.contains(&node.id))
-            .map(|node| node.id.clone())
-            .collect();
+        let mut start_nodes: Vec<String> = nodes.iter().filter(|node| !filter_nodes.contains(&node.id)).map(|node| node.id.clone()).collect();
 
         let mut logs = vec![];
         loop {
@@ -224,11 +175,7 @@ pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
                 let node = nodes.iter().find(|node| node.id == *node_id).unwrap();
                 logs.extend(excute_node(node, &sender).await.unwrap());
             }
-            start_nodes = edges
-                .iter()
-                .filter(|edge| start_nodes.contains(&edge.source))
-                .map(|edge| edge.target.clone())
-                .collect();
+            start_nodes = edges.iter().filter(|edge| start_nodes.contains(&edge.source)).map(|edge| edge.target.clone()).collect();
             if start_nodes.is_empty() {
                 break;
             }
@@ -249,11 +196,7 @@ pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
 
     let stream = UnboundedReceiverStream::new(receiver);
     (
-        [
-            (header::CONTENT_TYPE, "text/event-stream; charset=utf-8"),
-            (header::CACHE_CONTROL, "no-cache"),
-            (header::CONNECTION, "keep-alive"),
-        ],
+        [(header::CONTENT_TYPE, "text/event-stream; charset=utf-8"), (header::CACHE_CONTROL, "no-cache"), (header::CONNECTION, "keep-alive")],
         Sse::new(stream),
     )
 }
@@ -261,17 +204,8 @@ pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
 async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<Vec<Log>> {
     info!("Executing node: {:?}", node);
     let mut logs = vec![];
-    let log_data = LogData {
-        kind: "node_start".to_string(),
-        node_id: node.id.clone(),
-        node_type: Some(node.kind.clone()),
-        result: None,
-        data: None,
-    };
-    logs.push(Log {
-        timestamp: Utc::now(),
-        data: log_data.clone(),
-    });
+    let log_data = LogData { kind: "node_start".to_string(), node_id: node.id.clone(), node_type: Some(node.kind.clone()), result: None, data: None };
+    logs.push(Log { timestamp: Utc::now(), data: log_data.clone() });
     sse::send_json(log_data, sender)?;
     logs.extend(match node.kind.as_str() {
         "input" => node::input::execute(node, sender).await?,
@@ -279,17 +213,8 @@ async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infalli
         "http-request" => node::http::execute(node, sender).await?,
         _ => vec![],
     });
-    let log_data = LogData {
-        kind: "node_complete".to_string(),
-        data: None,
-        node_id: node.id.clone(),
-        node_type: Some("input".to_string()),
-        result: None,
-    };
-    logs.push(Log {
-        timestamp: Utc::now(),
-        data: log_data.clone(),
-    });
+    let log_data = LogData { kind: "node_complete".to_string(), data: None, node_id: node.id.clone(), node_type: Some("input".to_string()), result: None };
+    logs.push(Log { timestamp: Utc::now(), data: log_data.clone() });
     sse::send_json(log_data, sender).unwrap();
     Ok(logs)
 }
