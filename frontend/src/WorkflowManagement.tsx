@@ -143,11 +143,10 @@ const WorkflowManagement: React.FC = () => {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/workflow/${workflowId}/run`,
         {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(inputData),
         },
       );
 

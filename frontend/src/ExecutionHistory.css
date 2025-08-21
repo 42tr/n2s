@@ -1,7 +1,11 @@
 .execution-history {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: flex;
     flex-direction: column;
-    height: 100vh;
     font-family:
         -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
     background: #f8f9fa;
@@ -76,12 +80,13 @@
     display: flex;
     flex: 1;
     overflow: hidden;
+    width: 100%;
+    max-width: none;
 }
 
 .executions-panel {
-    width: 400px;
-    min-width: 350px;
-    max-width: 500px;
+    width: 300px;
+    min-width: 250px;
     background: white;
     border-right: 1px solid #e9ecef;
     display: flex;
@@ -285,6 +290,8 @@
     display: flex;
     flex-direction: column;
     background: white;
+    width: 100%;
+    max-width: none;
 }
 
 .workflow-container {
@@ -332,11 +339,6 @@
 }
 
 .detail-section {
-    margin-bottom: 20px;
-    padding: 0 20px;
-}
-
-.detail-section h4 {
     margin: 0 0 8px 0;
     color: #495057;
     font-size: 14px;
@@ -431,7 +433,6 @@
     .executions-panel {
         width: 350px;
         min-width: 300px;
-        max-width: 450px;
     }
 }
 
@@ -462,6 +463,5 @@
     .executions-panel {
         width: 480px;
         min-width: 400px;
-        max-width: 600px;
     }
 }

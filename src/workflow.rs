@@ -86,6 +86,7 @@ pub async fn get_executions(Path(id): Path<String>) -> Result<Json<Vec<Execution
         .iter()
         .filter(|exe| exe.workflow_id == id)
         .map(|exe| exe.clone())
+        .rev()
         .collect();
     Ok(Json(executions))
 }
