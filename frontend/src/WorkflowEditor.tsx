@@ -247,6 +247,7 @@ const WorkflowEditor: React.FC = () => {
     }
 
     const workflowData = {
+      id: id,
       name: workflowName,
       nodes: nodes.map((node) => ({
         id: node.id,
@@ -274,9 +275,9 @@ const WorkflowEditor: React.FC = () => {
 
       if (response.ok) {
         const result = await response.json();
-        alert(`工作流已保存！API地址：${result.apiUrl}`);
-        setWorkflowName("");
+        alert(`工作流已保存！API地址：/api/workflow/${result.id}/run`);
         loadSavedWorkflows();
+        navigate(`/editor/${result.id}`);
       } else {
         throw new Error("保存失败");
       }

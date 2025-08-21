@@ -11,6 +11,7 @@ const Sidebar: React.FC = () => {
     { type: 'ai-model', label: 'AI模型', icon: '🤖' },
     { type: 'condition', label: '条件判断', icon: '🔀' },
     { type: 'output', label: '输出节点', icon: '📤' },
+    { type: 'http-request', label: 'HTTP 请求', icon: '🌐' },
   ];
 
   return (

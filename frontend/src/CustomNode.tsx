@@ -42,6 +42,10 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data, id, selected }) => {
       case 'condition':
         borderColor = '#9C27B0';
         break;
+      case 'http-request':
+        borderColor = '#607D8B'; // Deep Grey for HTTP Request
+        backgroundColor = '#ECEFF1'; // Light Grey background
+        break;
     }
 
     // 根据执行状态覆盖样式
@@ -81,6 +85,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data, id, selected }) => {
       case 'input': return '📥';
       case 'output': return '📤';
       case 'condition': return '🔀';
+      case 'http-request': return '🌐'; // Globe icon for HTTP Request
       default: return '⚙️';
     }
   };
@@ -354,6 +359,105 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data, id, selected }) => {
           </div>
         );
       
+      case 'http-request':
+        return (
+          <div style={{ padding: '8px', borderTop: '1px solid #eee' }}>
+            <div style={{ marginBottom: '8px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '2px' }}>URL:</div>
+              <input
+                type="text"
+                value={config.url || ''}
+                onChange={(e) => handleConfigChange('url', e.target.value)}
+                onFocus={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                placeholder="https://api.example.com/endpoint"
+                style={{
+                  width: '100%',
+                  padding: '4px 6px',
+                  fontSize: '12px',
+                  border: '1px solid #ddd',
+                  borderRadius: '3px',
+                  boxSizing: 'border-box',
+                  outline: 'none'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '8px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '2px' }}>方法:</div>
+              <select
+                value={config.method || 'GET'}
+                onChange={(e) => handleConfigChange('method', e.target.value)}
+                onFocus={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                style={{
+                  width: '100%',
+                  padding: '4px 6px',
+                  fontSize: '12px',
+                  border: '1px solid #ddd',
+                  borderRadius: '3px',
+                  outline: 'none'
+                }}
+              >
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+                <option value="PATCH">PATCH</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '8px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '2px' }}>Headers (JSON):</div>
+              <textarea
+                value={config.headers || ''}
+                onChange={(e) => handleConfigChange('headers', e.target.value)}
+                onFocus={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                placeholder={`{
+  "Content-Type": "application/json"
+}`}
+                style={{
+                  width: '100%',
+                  minHeight: '60px',
+                  padding: '4px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  resize: 'vertical',
+                  outline: 'none'
+                }}
+              />
+            </div>
+
+            <div>
+              <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '2px' }}>Body (JSON):</div>
+              <textarea
+                value={config.body || ''}
+                onChange={(e) => handleConfigChange('body', e.target.value)}
+                onFocus={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                placeholder={`{
+  "key": "value"
+}`}
+                style={{
+                  width: '100%',
+                  minHeight: '60px',
+                  padding: '4px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  resize: 'vertical',
+                  outline: 'none'
+                }}
+              />
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }

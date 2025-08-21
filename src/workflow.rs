@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap, convert::Infallible, sync::{Arc, OnceLock}
+    collections::HashMap, convert::Infallible, str::FromStr, sync::{Arc, OnceLock}
 };
 
 use async_openai::{Client, config::OpenAIConfig, types::CreateCompletionRequestArgs};
@@ -8,6 +8,10 @@ use axum::{
 };
 use chrono::{DateTime, Utc};
 use futures::StreamExt;
+use log::info;
+use reqwest::{
+    self, header::{HeaderMap, HeaderName, HeaderValue}
+};
 use serde::{Deserialize, Serialize};
 use tokio::sync::{RwLock, mpsc::UnboundedSender};
 use tokio_stream::wrappers::UnboundedReceiverStream;
@@ -165,7 +169,9 @@ pub async fn list() -> Result<Json<Vec<Workflow>>, AppError> {
         .get_or_init(|| Arc::new(RwLock::new(load_config())))
         .read()
         .await;
-    Ok(Json(data.clone()))
+    let mut response = data.clone();
+    response.reverse();
+    Ok(Json(response))
 }
 
 pub async fn get(Path(id): Path<String>) -> Result<Json<Workflow>, AppError> {
@@ -294,6 +300,7 @@ pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
 }
 
 async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<Vec<Log>> {
+    info!("Executing node: {:?}", node);
     let mut logs = vec![];
     logs.push(Log {
         timestamp: Utc::now(),
@@ -380,6 +387,105 @@ async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infalli
                         .unwrap();
                     }),
                     Err(e) => eprintln!("{}", e),
+                }
+            }
+        }
+        "http-request" => {
+            let url = node.config.get("url");
+            if url.is_none() {
+                logs.push(Log {
+                    timestamp: Utc::now(),
+                    data: LogData {
+                        kind: "http-request-error".to_string(),
+                        data: Some("url 为空".to_string()),
+                        node_id: node.id.clone(),
+                        node_type: None,
+                        result: None,
+                    },
+                });
+                send_json(
+                    LogData {
+                        kind: "http-request-error".to_string(),
+                        data: Some("url 为空".to_string()),
+                        node_id: node.id.clone(),
+                        node_type: None,
+                        result: None,
+                    },
+                    sender,
+                )
+                .unwrap();
+            } else {
+                let url = url.unwrap();
+                let method = node.config.get("method").map(|s| s.as_str()).unwrap_or("GET");
+                let headers_str = node.config.get("headers").map(|s| s.as_str()).unwrap_or("");
+                let body = node.config.get("body").cloned().unwrap_or_default();
+                let client = reqwest::Client::new();
+                let request = client.request(method.parse().unwrap(), url);
+                let mut header_map = HeaderMap::new();
+                if !headers_str.trim().is_empty() {
+                    for line in headers_str.trim().lines() {
+                        if let Some((k, v)) = line.split_once(':') {
+                            let name = HeaderName::from_str(k.trim())
+                                .map_err(|_| "Invalid header name")
+                                .unwrap();
+                            let value = HeaderValue::from_str(v.trim())
+                                .map_err(|_| "Invalid header value")
+                                .unwrap();
+                            header_map.insert(name, value);
+                        }
+                    }
+                }
+                let request = request.headers(header_map);
+                let request = request.body(body.clone());
+                let response = request.send().await;
+                match response {
+                    Ok(response) => {
+                        let text = response.text().await.unwrap_or_default();
+                        logs.push(Log {
+                            timestamp: Utc::now(),
+                            data: LogData {
+                                kind: "output".to_string(),
+                                data: Some(format!("status: {}", text)),
+                                node_id: node.id.clone(),
+                                node_type: None,
+                                result: Some(format!("status: {}", text)),
+                            },
+                        });
+                        send_json(
+                            LogData {
+                                kind: "output".to_string(),
+                                data: Some(format!("status: {}", text)),
+                                node_id: node.id.clone(),
+                                node_type: None,
+                                result: Some(format!("status: {}", text)),
+                            },
+                            sender,
+                        )
+                        .unwrap();
+                    }
+                    Err(e) => {
+                        logs.push(Log {
+                            timestamp: Utc::now(),
+                            data: LogData {
+                                kind: "output".to_string(),
+                                data: Some(format!("error: {}", e)),
+                                node_id: node.id.clone(),
+                                node_type: None,
+                                result: None,
+                            },
+                        });
+                        send_json(
+                            LogData {
+                                kind: "output".to_string(),
+                                data: Some(format!("error: {}", e)),
+                                node_id: node.id.clone(),
+                                node_type: None,
+                                result: None,
+                            },
+                            sender,
+                        )
+                        .unwrap();
+                    }
                 }
             }
         }
