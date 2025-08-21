@@ -99,16 +99,17 @@ const WorkflowManagement: React.FC = () => {
   };
 
   // 更新工作流名称
-  const updateWorkflowName = async (workflowId: string, newName: string) => {
+  const updateWorkflowName = async (workflow: Workflow, newName: string) => {
     try {
+      workflow.name = newName;
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/workflow/${workflowId}`,
+        `${import.meta.env.VITE_API_URL}/api/workflow`,
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ name: newName }),
+          body: JSON.stringify(workflow),
         },
       );
 
@@ -233,7 +234,7 @@ const WorkflowManagement: React.FC = () => {
                         onBlur={() => {
                           if (newWorkflowName.trim()) {
                             updateWorkflowName(
-                              workflow.id,
+                              workflow,
                               newWorkflowName.trim(),
                             );
                           } else {
@@ -245,7 +246,7 @@ const WorkflowManagement: React.FC = () => {
                           if (e.key === "Enter") {
                             if (newWorkflowName.trim()) {
                               updateWorkflowName(
-                                workflow.id,
+                                workflow,
                                 newWorkflowName.trim(),
                               );
                             }
