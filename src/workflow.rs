@@ -43,7 +43,7 @@ pub struct Edge {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Workflow {
-    id: String,
+    id: Option<String>,
     name: String,
     nodes: Vec<Node>,
     edges: Vec<Edge>,
@@ -106,7 +106,26 @@ fn save_config(workflows: &Vec<Workflow>) {
     std::fs::write(WORKFLOW_FILE, json_string).unwrap();
 }
 
-pub async fn create(Json(mut workflow): Json<Workflow>) -> Result<Json<Workflow>, AppError> {
+pub async fn create_or_update(Json(mut workflow): Json<Workflow>) -> Result<Json<Workflow>, AppError> {
+    if workflow.id.is_some() {
+        let updated_at = Utc::now();
+        workflow.updated_at = Some(updated_at);
+        let mut data = WORKFLOWS
+            .get_or_init(|| Arc::new(RwLock::new(load_config())))
+            .write()
+            .await;
+        if let Some(index) = data.iter().position(|w| w.id == workflow.id) {
+            data[index] = workflow.clone();
+            save_config(&data);
+            return Ok(Json(workflow));
+        } else {
+            return Err(AppError::NotFound(format!(
+                "Workflow 不存在: id={}",
+                workflow.id.unwrap()
+            )));
+        }
+    }
+    workflow.id = Some(uuid::Uuid::new_v4().to_string());
     let created_at = Utc::now();
     let updated_at = created_at;
     workflow.created_at = Some(created_at);
@@ -118,7 +137,7 @@ pub async fn create(Json(mut workflow): Json<Workflow>) -> Result<Json<Workflow>
     if let Some(_) = data.iter().position(|w| w.id == workflow.id) {
         Err(AppError::Conflict(format!(
             "Workflow 已存在: id={}",
-            workflow.id
+            workflow.id.unwrap()
         )))
     } else {
         data.push(workflow.clone());
@@ -127,31 +146,12 @@ pub async fn create(Json(mut workflow): Json<Workflow>) -> Result<Json<Workflow>
     }
 }
 
-pub async fn update(Json(mut workflow): Json<Workflow>) -> Result<Json<Workflow>, AppError> {
-    let updated_at = Utc::now();
-    workflow.updated_at = Some(updated_at);
-    let mut data = WORKFLOWS
-        .get_or_init(|| Arc::new(RwLock::new(load_config())))
-        .write()
-        .await;
-    if let Some(index) = data.iter().position(|w| w.id == workflow.id) {
-        data[index] = workflow.clone();
-        save_config(&data);
-        Ok(Json(workflow))
-    } else {
-        Err(AppError::NotFound(format!(
-            "Workflow 不存在: id={}",
-            workflow.id
-        )))
-    }
-}
-
 pub async fn delete(Path(id): Path<String>) -> Result<(), AppError> {
     let mut data = WORKFLOWS
         .get_or_init(|| Arc::new(RwLock::new(load_config())))
         .write()
         .await;
-    if let Some(index) = data.iter().position(|w| w.id == id) {
+    if let Some(index) = data.iter().position(|w| w.id == Some(id.clone())) {
         data.remove(index);
         save_config(&data);
         Ok(())
@@ -173,7 +173,7 @@ pub async fn get(Path(id): Path<String>) -> Result<Json<Workflow>, AppError> {
         .get_or_init(|| Arc::new(RwLock::new(load_config())))
         .read()
         .await;
-    if let Some(workflow) = data.iter().find(|w| w.id == id) {
+    if let Some(workflow) = data.iter().find(|w| w.id == Some(id.clone())) {
         Ok(Json(workflow.clone()))
     } else {
         Err(AppError::NotFound(format!("Workflow 不存在: id={}", id)))
@@ -229,7 +229,7 @@ pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
             .get_or_init(|| Arc::new(RwLock::new(load_config())))
             .write()
             .await;
-        let index = match data.iter().position(|w| w.id == id) {
+        let index = match data.iter().position(|w| w.id == Some(id.clone())) {
             Some(idx) => idx,
             None => {
                 let event = Event::default()

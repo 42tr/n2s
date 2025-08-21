@@ -264,7 +264,7 @@ const WorkflowEditor: React.FC = () => {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/workflow`,
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
@@ -422,7 +422,7 @@ const WorkflowEditor: React.FC = () => {
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/api/workflow`,
           {
-            method: "PUT",
+            method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
