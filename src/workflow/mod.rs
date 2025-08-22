@@ -3,7 +3,7 @@ use std::{
 };
 
 use axum::{
-    Json, extract::Path, http::header, response::{IntoResponse, Sse, sse::Event}
+    Json, extract::{Path, Query}, http::header, response::{IntoResponse, Sse, sse::Event}
 };
 use chrono::Utc;
 use log::info;
@@ -23,7 +23,7 @@ static EXECUTION_FILE: &'static str = "executions.json";
 mod model;
 mod node;
 mod sse;
-use model::{Execution, Log, LogData, Node, Workflow};
+use model::{Execution, Log, LogData, Node, Workflow, WorkflowReqParam};
 
 /// 执行记录增查
 
@@ -129,13 +129,13 @@ pub async fn get(Path(id): Path<String>) -> Result<Json<Workflow>, AppError> {
 pub async fn execute_workflow(Json(workflow): Json<Workflow>) -> impl IntoResponse {
     let (sender, receiver) = mpsc::unbounded_channel();
     tokio::spawn(async move {
-        run_workflow(workflow, sender, false).await;
+        run_workflow(workflow, sender, false, None).await;
     });
 
     sse_response(receiver)
 }
 
-pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
+pub async fn execute(Path(id): Path<String>, Query(param): Query<WorkflowReqParam>) -> impl IntoResponse {
     let (sender, receiver) = mpsc::unbounded_channel();
 
     tokio::spawn(async move {
@@ -151,32 +151,45 @@ pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
         let workflow = data[index].clone(); // 克隆 workflow 以避免锁持有太久
         drop(data); // 尽早释放锁
 
-        run_workflow(workflow, sender, true).await;
+        run_workflow(workflow, sender, true, param.input).await;
     });
 
     sse_response(receiver)
 }
 
-async fn run_workflow(workflow: Workflow, sender: UnboundedSender<Result<Event, Infallible>>, record_execution: bool) {
+async fn run_workflow(workflow: Workflow, sender: UnboundedSender<Result<Event, Infallible>>, record_execution: bool, input: Option<String>) {
     let edges = workflow.edges.clone();
-    let nodes = workflow.nodes.clone();
+    let next_node_map = edges.iter().map(|edge| (edge.source.clone(), edge.target.clone())).collect::<HashMap<String, String>>();
+    let mut nodes = workflow.nodes.clone();
 
     // 找出起始节点（没有前驱的节点）
     let filter_nodes: Vec<String> = edges.iter().map(|edge| edge.target.clone()).collect();
     let mut start_nodes: Vec<String> = nodes.iter().filter(|node| !filter_nodes.contains(&node.id)).map(|node| node.id.clone()).collect();
+
+    let mut input_map: HashMap<String, String> = HashMap::new();
+    if let Some(input) = input {
+        for node_id in start_nodes.clone() {
+            input_map.insert(node_id, input.clone());
+        }
+    }
 
     let mut logs = Vec::new();
     let start_time = Utc::now();
 
     loop {
         let mut has_more = false;
-        let mut next_start_nodes = Vec::new();
 
         for node_id in &start_nodes {
-            if let Some(node) = nodes.iter().find(|n| n.id == *node_id) {
+            if let Some(node) = nodes.iter_mut().find(|n| n.id == *node_id) {
+                if let Some(input) = input_map.get(node_id) {
+                    node.reset_config(input);
+                }
                 match excute_node(node, &sender).await {
-                    Ok(node_logs) => {
+                    Ok((node_logs, output)) => {
                         logs.extend(node_logs);
+                        if let Some(next_node) = next_node_map.get(node_id) {
+                            input_map.insert(next_node.clone(), output);
+                        }
                     }
                     Err(e) => {
                         let _ = sse::send_error(format!("Node execution failed: {}", e), &sender);
@@ -188,9 +201,7 @@ async fn run_workflow(workflow: Workflow, sender: UnboundedSender<Result<Event, 
         }
 
         // 下一层节点：当前执行节点的所有后继
-        next_start_nodes = edges.iter().filter(|edge| start_nodes.contains(&edge.source)).map(|edge| edge.target.clone()).collect();
-
-        start_nodes = next_start_nodes;
+        start_nodes = edges.iter().filter(|edge| start_nodes.contains(&edge.source)).map(|edge| edge.target.clone()).collect();
 
         if !has_more || start_nodes.is_empty() {
             break;
@@ -216,22 +227,23 @@ async fn run_workflow(workflow: Workflow, sender: UnboundedSender<Result<Event, 
     let _ = sse::send_string("[DONE]".to_string(), &sender);
 }
 
-async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<Vec<Log>> {
+async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<(Vec<Log>, String)> {
     info!("Executing node: {:?}", node);
     let mut logs = vec![];
     let log_data = LogData { kind: "node_start".to_string(), node_id: node.id.clone(), node_type: Some(node.kind.clone()), result: None, data: None };
     logs.push(Log { timestamp: Utc::now(), data: log_data.clone() });
     sse::send_json(log_data, sender)?;
-    logs.extend(match node.kind.as_str() {
+    let (node_logs, output) = match node.kind.as_str() {
         "input" => node::input::execute(node, sender).await?,
         "ai-model" => node::llm::execute(node, sender).await?,
         "http-request" => node::http::execute(node, sender).await?,
-        _ => vec![],
-    });
+        _ => (vec![], "".to_string()),
+    };
+    logs.extend(node_logs);
     let log_data = LogData { kind: "node_complete".to_string(), data: None, node_id: node.id.clone(), node_type: Some("input".to_string()), result: None };
     logs.push(Log { timestamp: Utc::now(), data: log_data.clone() });
     sse::send_json(log_data, sender).unwrap();
-    Ok(logs)
+    Ok((logs, output))
 }
 
 fn sse_response(receiver: UnboundedReceiver<Result<Event, Infallible>>) -> impl IntoResponse {

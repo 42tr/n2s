@@ -9,8 +9,9 @@ use super::super::{
     model::{Log, LogData, Node}, sse::send_json
 };
 
-pub async fn execute(node: &Node, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<Vec<Log>> {
+pub async fn execute(node: &Node, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<(Vec<Log>, String)> {
     let mut logs = vec![];
+    let mut output = String::new();
     let url = node.config.get("url");
     if url.is_none() {
         let log_data = LogData { kind: "http-request-error".to_string(), data: Some("url 为空".to_string()), node_id: node.id.clone(), node_type: None, result: None };
@@ -39,6 +40,7 @@ pub async fn execute(node: &Node, sender: &UnboundedSender<Result<Event, Infalli
         match response {
             Ok(response) => {
                 let text = response.text().await.unwrap_or_default();
+                output.push_str(&text);
                 let log_data = LogData { kind: "output".to_string(), data: Some(text.clone()), node_id: node.id.clone(), node_type: None, result: Some(text.clone()) };
                 logs.push(Log { timestamp: Utc::now(), data: log_data.clone() });
                 send_json(log_data, sender).unwrap();
@@ -50,5 +52,5 @@ pub async fn execute(node: &Node, sender: &UnboundedSender<Result<Event, Infalli
             }
         }
     }
-    Ok(logs)
+    Ok((logs, output))
 }

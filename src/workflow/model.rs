@@ -18,6 +18,14 @@ pub struct Node {
     pub config: HashMap<String, String>,
 }
 
+impl Node {
+    pub fn reset_config(&mut self, input: &String) {
+        for (_key, value) in self.config.iter_mut() {
+            *value = value.replace("${input}", &input);
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Edge {
     pub source: String,
@@ -66,4 +74,11 @@ pub struct LogData {
     pub node_type: Option<String>,
     pub result: Option<String>,
     pub data: Option<String>,
+}
+
+/// 执行请求
+
+#[derive(Deserialize)]
+pub struct WorkflowReqParam {
+    pub input: Option<String>,
 }
