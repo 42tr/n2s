@@ -25,6 +25,10 @@ pub async fn execute(node: &Node, sender: &UnboundedSender<Result<Event, Infalli
     let config = OpenAIConfig::new().with_api_key(api_key).with_api_base(base_url);
     let client = Client::with_config(config);
 
+    let log_data = LogData { kind: "ai_response_chunk".to_string(), data: Some(format!("Input: {}\n\nOutput:", prompt.clone())), node_id: node.id.clone(), node_type: None, result: None };
+    logs.push(Log { timestamp: Utc::now(), data: log_data.clone() });
+    sse::send_json(log_data, sender).unwrap();
+
     let request = CreateCompletionRequestArgs::default().model(model).n(1).prompt(prompt).stream(true).max_tokens(1024_u32).build()?;
 
     let mut stream = client.completions().create_stream(request).await?;

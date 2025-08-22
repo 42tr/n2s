@@ -96,6 +96,8 @@ const CustomNode: React.FC<CustomNodeProps> = ({
         return "🔀";
       case "http-request":
         return "🌐";
+      case "lua-script":
+        return "🧩";
       default:
         return "⚙️";
     }
@@ -153,6 +155,43 @@ const CustomNode: React.FC<CustomNodeProps> = ({
                 e.preventDefault();
                 e.stopPropagation();
                 handleConfigChange("input", e.target.value);
+              }}
+              onFocus={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              placeholder="请输入内容..."
+              style={{
+                width: "100%",
+                minHeight: "60px",
+                padding: "4px",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+                fontSize: "12px",
+                resize: "vertical",
+                outline: "none",
+              }}
+            />
+          </div>
+        );
+
+      case "lua-script":
+        return (
+          <div style={{ padding: "8px", borderTop: "1px solid #eee" }}>
+            <div
+              style={{
+                marginBottom: "4px",
+                fontSize: "12px",
+                fontWeight: "bold",
+              }}
+            >
+              脚本:
+            </div>
+            <textarea
+              value={config.script || ""}
+              onChange={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleConfigChange("script", e.target.value);
               }}
               onFocus={(e) => e.stopPropagation()}
               onKeyDown={(e) => e.stopPropagation()}
