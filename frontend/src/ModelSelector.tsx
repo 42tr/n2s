@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 interface ModelSelectorProps {
   apiKey: string;
@@ -9,53 +9,13 @@ interface ModelSelectorProps {
 }
 
 const ModelSelector: React.FC<ModelSelectorProps> = ({
-  apiKey,
-  baseUrl,
   selectedModel,
   onModelChange,
   isCustomProvider = false,
 }) => {
-  const [models, setModels] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const fetchModels = async () => {
-    // 自定义提供商且没有base URL时不获取模型列表
-    if (isCustomProvider && !baseUrl) {
-      setModels([]);
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
-    try {
-      const params = new URLSearchParams({
-        ...(apiKey && { apiKey }),
-        ...(baseUrl && { baseUrl }),
-      });
-
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/models?${params}`,
-      );
-
-      if (!response.ok) {
-        throw new Error("获取模型列表失败");
-      }
-
-      const data = await response.json();
-      setModels(data.models || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "获取模型失败");
-      setModels([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchModels();
-  }, [apiKey, baseUrl]);
+  const [models] = useState<string[]>([]);
+  const [loading] = useState(false);
+  const [error] = useState("");
 
   const handleModelSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onModelChange(e.target.value);
@@ -64,8 +24,6 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
   const handleManualInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     onModelChange(e.target.value);
   };
-
-  const showRefreshButton = !isCustomProvider || (isCustomProvider && baseUrl);
 
   return (
     <div style={{ marginBottom: "8px" }}>
@@ -78,39 +36,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
         }}
       >
         <span style={{ fontSize: "12px", fontWeight: "bold" }}>模型:</span>
-        {showRefreshButton && (
-          <button
-            onClick={fetchModels}
-            disabled={loading}
-            style={{
-              padding: "2px 6px",
-              fontSize: "10px",
-              background: "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "3px",
-              cursor: loading ? "not-allowed" : "pointer",
-            }}
-          >
-            {loading ? "刷新中..." : "刷新"}
-          </button>
-        )}
       </div>
-
-      {isCustomProvider && !baseUrl && (
-        <div
-          style={{
-            fontSize: "10px",
-            color: "#ffc107",
-            marginBottom: "4px",
-            padding: "2px 4px",
-            background: "#fff8e1",
-            borderRadius: "3px",
-          }}
-        >
-          请先输入Base URL以获取模型列表
-        </div>
-      )}
 
       {error && (
         <div
