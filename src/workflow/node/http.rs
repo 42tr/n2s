@@ -2,9 +2,7 @@ use std::{convert::Infallible, str::FromStr};
 
 use axum::response::sse::Event;
 use chrono::Utc;
-use reqwest::{
-    self, header::{HeaderMap, HeaderName, HeaderValue}
-};
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use tokio::sync::mpsc::UnboundedSender;
 
 use super::super::{
@@ -41,7 +39,7 @@ pub async fn execute(node: &Node, sender: &UnboundedSender<Result<Event, Infalli
         match response {
             Ok(response) => {
                 let text = response.text().await.unwrap_or_default();
-                let log_data = LogData { kind: "output".to_string(), data: None, node_id: node.id.clone(), node_type: None, result: Some(text.clone()) };
+                let log_data = LogData { kind: "output".to_string(), data: Some(text.clone()), node_id: node.id.clone(), node_type: None, result: Some(text.clone()) };
                 logs.push(Log { timestamp: Utc::now(), data: log_data.clone() });
                 send_json(log_data, sender).unwrap();
             }

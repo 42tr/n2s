@@ -89,7 +89,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data, id, selected }) => {
       case "condition":
         return "🔀";
       case "http-request":
-        return "🌐"; // Globe icon for HTTP Request
+        return "🌐";
       default:
         return "⚙️";
     }
@@ -116,6 +116,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data, id, selected }) => {
       data.config = {};
     }
     data.config[key] = value;
+    console.log("config", data.config);
   };
 
   const renderConfigPanel = () => {
@@ -170,79 +171,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data, id, selected }) => {
                   marginBottom: "2px",
                 }}
               >
-                模型提供商:
-              </div>
-              <select
-                value={config.provider || "openai"}
-                onChange={(e) => {
-                  console.log("Provider changed to:", e.target.value);
-                  handleConfigChange("provider", e.target.value);
-                  // 清空模型选择，因为不同提供商的模型不同
-                  handleConfigChange("model", "");
-                }}
-                onFocus={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-                style={{
-                  width: "100%",
-                  padding: "4px 6px",
-                  fontSize: "12px",
-                  border: "1px solid #ddd",
-                  borderRadius: "3px",
-                  outline: "none",
-                }}
-              >
-                <option value="openai">OpenAI</option>
-                <option value="anthropic">Anthropic</option>
-                <option value="ollama">Ollama</option>
-                <option value="custom">自定义提供商</option>
-              </select>
-            </div>
-
-            {config.provider === "custom" && (
-              <div style={{ marginBottom: "8px" }}>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                    marginBottom: "2px",
-                  }}
-                >
-                  提供商名称:
-                </div>
-                <input
-                  type="text"
-                  value={config.customProviderName || ""}
-                  onChange={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleConfigChange("customProviderName", e.target.value);
-                  }}
-                  onFocus={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  placeholder="例: gemini, deepseek, qwen"
-                  style={{
-                    width: "100%",
-                    padding: "4px 6px",
-                    fontSize: "12px",
-                    border: "1px solid #ddd",
-                    borderRadius: "3px",
-                    boxSizing: "border-box",
-                    outline: "none",
-                  }}
-                />
-              </div>
-            )}
-
-            <div style={{ marginBottom: "8px" }}>
-              <div
-                style={{
-                  fontSize: "12px",
-                  fontWeight: "bold",
-                  marginBottom: "2px",
-                }}
-              >
-                Base URL {config.provider === "custom" ? "" : "(可选)"}:
+                Base URL:
               </div>
               <input
                 type="text"
@@ -252,17 +181,11 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data, id, selected }) => {
                   e.preventDefault();
                   e.stopPropagation();
                   handleConfigChange("baseUrl", e.target.value);
-                  // 清空模型选择，因为base URL变化可能影响可用模型
-                  handleConfigChange("model", "");
                 }}
                 onFocus={(e) => e.stopPropagation()}
                 onKeyDown={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
-                placeholder={
-                  config.provider === "custom"
-                    ? "https://api.example.com"
-                    : "https://api.openai.com"
-                }
+                placeholder={"https://api.example.com"}
                 style={{
                   width: "100%",
                   padding: "4px 6px",
@@ -309,62 +232,12 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data, id, selected }) => {
               />
             </div>
 
-            {config.provider === "custom" && (
-              <div style={{ marginBottom: "8px" }}>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                    marginBottom: "2px",
-                  }}
-                >
-                  请求格式:
-                </div>
-                <select
-                  value={config.requestFormat || "openai"}
-                  onChange={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleConfigChange("requestFormat", e.target.value);
-                  }}
-                  onFocus={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  style={{
-                    width: "100%",
-                    padding: "4px 6px",
-                    fontSize: "12px",
-                    border: "1px solid #ddd",
-                    borderRadius: "3px",
-                    outline: "none",
-                  }}
-                >
-                  <option value="openai">OpenAI格式</option>
-                  <option value="anthropic">Anthropic格式</option>
-                  <option value="ollama">Ollama格式</option>
-                </select>
-                <div
-                  style={{
-                    fontSize: "10px",
-                    color: "#6c757d",
-                    marginTop: "2px",
-                  }}
-                >
-                  选择与您的API兼容的请求格式
-                </div>
-              </div>
-            )}
-
             <ModelSelector
-              provider={
-                config.provider === "custom"
-                  ? config.requestFormat || "openai"
-                  : config.provider || "openai"
-              }
               apiKey={config.apiKey || ""}
               baseUrl={config.baseUrl || ""}
               selectedModel={config.model || ""}
               onModelChange={(model) => handleConfigChange("model", model)}
-              isCustomProvider={config.provider === "custom"}
+              isCustomProvider={true}
             />
             <div>
               <div
