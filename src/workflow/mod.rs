@@ -7,7 +7,9 @@ use axum::{
 };
 use chrono::Utc;
 use log::info;
-use tokio::sync::{RwLock, mpsc::UnboundedSender};
+use tokio::sync::{
+    RwLock, mpsc, mpsc::{UnboundedReceiver, UnboundedSender}
+};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use uuid::Uuid;
 
@@ -125,80 +127,93 @@ pub async fn get(Path(id): Path<String>) -> Result<Json<Workflow>, AppError> {
 /// 执行
 
 pub async fn execute_workflow(Json(workflow): Json<Workflow>) -> impl IntoResponse {
-    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel();
+    let (sender, receiver) = mpsc::unbounded_channel();
     tokio::spawn(async move {
-        let edges = workflow.edges.clone();
-        let nodes = workflow.nodes.clone();
-        let filter_nodes: Vec<String> = edges.iter().map(|edge| edge.target.clone()).collect();
-        let mut start_nodes: Vec<String> = nodes.iter().filter(|node| !filter_nodes.contains(&node.id)).map(|node| node.id.clone()).collect();
-        loop {
-            for node_id in &start_nodes {
-                let node = nodes.iter().find(|node| node.id == *node_id).unwrap();
-                excute_node(node, &sender).await.unwrap();
-            }
-            start_nodes = edges.iter().filter(|edge| start_nodes.contains(&edge.source)).map(|edge| edge.target.clone()).collect();
-            if start_nodes.is_empty() {
-                break;
-            }
-        }
-        sse::send_string("[DONE]".to_string(), &sender).unwrap();
+        run_workflow(workflow, sender, false).await;
     });
 
-    let stream = UnboundedReceiverStream::new(receiver);
-    (
-        [(header::CONTENT_TYPE, "text/event-stream; charset=utf-8"), (header::CACHE_CONTROL, "no-cache"), (header::CONNECTION, "keep-alive")],
-        Sse::new(stream),
-    )
+    sse_response(receiver)
 }
 
 pub async fn execute(Path(id): Path<String>) -> impl IntoResponse {
-    let start_time = Utc::now();
-    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel();
+    let (sender, receiver) = mpsc::unbounded_channel();
+
     tokio::spawn(async move {
-        let data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).write().await;
+        let data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).read().await;
         let index = match data.iter().position(|w| w.id == Some(id.clone())) {
             Some(idx) => idx,
             None => {
-                sse::send_error(format!("工作流不存在：id={}", id), &sender).unwrap();
+                let _ = sse::send_error(format!("工作流不存在：id={}", id), &sender);
                 return;
             }
         };
-        let workflow = &data[index];
-        let edges = workflow.edges.clone();
-        let nodes = workflow.nodes.clone();
-        let filter_nodes: Vec<String> = edges.iter().map(|edge| edge.target.clone()).collect();
-        let mut start_nodes: Vec<String> = nodes.iter().filter(|node| !filter_nodes.contains(&node.id)).map(|node| node.id.clone()).collect();
 
-        let mut logs = vec![];
-        loop {
-            for node_id in &start_nodes {
-                let node = nodes.iter().find(|node| node.id == *node_id).unwrap();
-                logs.extend(excute_node(node, &sender).await.unwrap());
-            }
-            start_nodes = edges.iter().filter(|edge| start_nodes.contains(&edge.source)).map(|edge| edge.target.clone()).collect();
-            if start_nodes.is_empty() {
-                break;
+        let workflow = data[index].clone(); // 克隆 workflow 以避免锁持有太久
+        drop(data); // 尽早释放锁
+
+        run_workflow(workflow, sender, true).await;
+    });
+
+    sse_response(receiver)
+}
+
+async fn run_workflow(workflow: Workflow, sender: UnboundedSender<Result<Event, Infallible>>, record_execution: bool) {
+    let edges = workflow.edges.clone();
+    let nodes = workflow.nodes.clone();
+
+    // 找出起始节点（没有前驱的节点）
+    let filter_nodes: Vec<String> = edges.iter().map(|edge| edge.target.clone()).collect();
+    let mut start_nodes: Vec<String> = nodes.iter().filter(|node| !filter_nodes.contains(&node.id)).map(|node| node.id.clone()).collect();
+
+    let mut logs = Vec::new();
+    let start_time = Utc::now();
+
+    loop {
+        let mut has_more = false;
+        let mut next_start_nodes = Vec::new();
+
+        for node_id in &start_nodes {
+            if let Some(node) = nodes.iter().find(|n| n.id == *node_id) {
+                match excute_node(node, &sender).await {
+                    Ok(node_logs) => {
+                        logs.extend(node_logs);
+                    }
+                    Err(e) => {
+                        let _ = sse::send_error(format!("Node execution failed: {}", e), &sender);
+                        return;
+                    }
+                }
+                has_more = true;
             }
         }
+
+        // 下一层节点：当前执行节点的所有后继
+        next_start_nodes = edges.iter().filter(|edge| start_nodes.contains(&edge.source)).map(|edge| edge.target.clone()).collect();
+
+        start_nodes = next_start_nodes;
+
+        if !has_more || start_nodes.is_empty() {
+            break;
+        }
+    }
+
+    // 记录执行历史（仅当 record_execution 为 true）
+    if record_execution {
         let end_time = Utc::now();
         let execution = Execution {
             id: Uuid::new_v4().to_string(),
             status: "completed".to_string(),
-            workflow_id: id.to_string(),
+            workflow_id: workflow.id.unwrap_or_else(|| "unknown".to_string()),
             input: HashMap::new(),
             timestamp: start_time,
             duration: (end_time - start_time).num_milliseconds(),
             logs,
         };
         create_execution(execution).await;
-        sse::send_string("[DONE]".to_string(), &sender).unwrap();
-    });
+    }
 
-    let stream = UnboundedReceiverStream::new(receiver);
-    (
-        [(header::CONTENT_TYPE, "text/event-stream; charset=utf-8"), (header::CACHE_CONTROL, "no-cache"), (header::CONNECTION, "keep-alive")],
-        Sse::new(stream),
-    )
+    // 发送完成信号
+    let _ = sse::send_string("[DONE]".to_string(), &sender);
 }
 
 async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<Vec<Log>> {
@@ -217,4 +232,12 @@ async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infalli
     logs.push(Log { timestamp: Utc::now(), data: log_data.clone() });
     sse::send_json(log_data, sender).unwrap();
     Ok(logs)
+}
+
+fn sse_response(receiver: UnboundedReceiver<Result<Event, Infallible>>) -> impl IntoResponse {
+    let stream = UnboundedReceiverStream::new(receiver);
+    (
+        [(header::CONTENT_TYPE, "text/event-stream; charset=utf-8"), (header::CACHE_CONTROL, "no-cache"), (header::CONNECTION, "keep-alive")],
+        Sse::new(stream),
+    )
 }
