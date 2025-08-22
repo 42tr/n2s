@@ -14,9 +14,15 @@ interface CustomNodeProps {
   };
   id: string;
   selected?: boolean;
+  onConfigChange?: (nodeId: string, config: any) => void;
 }
 
-const CustomNode: React.FC<CustomNodeProps> = ({ data, id, selected }) => {
+const CustomNode: React.FC<CustomNodeProps> = ({
+  data,
+  id,
+  selected,
+  onConfigChange,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showErrorLog, setShowErrorLog] = useState(false);
 
@@ -111,12 +117,18 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data, id, selected }) => {
   const handleConfigChange = (key: string, value: string) => {
     console.log("配置更新:", key, "=", value);
 
-    // 直接修改data.config对象
-    if (!data.config) {
-      data.config = {};
+    // 创建新的配置对象
+    const newConfig = {
+      ...config,
+      [key]: value,
+    };
+
+    console.log("新配置:", newConfig);
+
+    // 通过回调函数通知父组件更新配置
+    if (onConfigChange) {
+      onConfigChange(id, newConfig);
     }
-    data.config[key] = value;
-    console.log("config", data.config);
   };
 
   const renderConfigPanel = () => {
@@ -290,6 +302,9 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data, id, selected }) => {
               type="text"
               value={config.condition || "true"}
               onChange={(e) => handleConfigChange("condition", e.target.value)}
+              onFocus={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
               placeholder="例: input.length > 10"
               style={{ width: "100%", padding: "4px", fontSize: "12px" }}
             />
@@ -312,6 +327,9 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data, id, selected }) => {
               type="text"
               value={config.output || "输出完成"}
               onChange={(e) => handleConfigChange("output", e.target.value)}
+              onFocus={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
               placeholder="输出格式"
               style={{ width: "100%", padding: "4px", fontSize: "12px" }}
             />

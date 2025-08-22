@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ReactFlow,
@@ -18,10 +18,6 @@ import "@xyflow/react/dist/style.css";
 import CustomNode from "./CustomNode";
 import Sidebar from "./Sidebar";
 import "./WorkflowEditor.css";
-
-const nodeTypes = {
-  custom: CustomNode,
-};
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
@@ -116,6 +112,26 @@ const WorkflowEditor: React.FC = () => {
     );
   };
 
+  const updateNodeConfig = useCallback(
+    (nodeId: string, config: any) => {
+      console.log("更新节点配置:", nodeId, config);
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  config: config,
+                },
+              }
+            : node,
+        ),
+      );
+    },
+    [setNodes],
+  );
+
   const appendNodeOutput = (nodeId: string, chunk: string) => {
     setNodes((nds) =>
       nds.map((node) =>
@@ -128,6 +144,16 @@ const WorkflowEditor: React.FC = () => {
       ),
     );
   };
+
+  // 定义节点类型，包含配置更新回调
+  const nodeTypes = useMemo(
+    () => ({
+      custom: (props: any) => (
+        <CustomNode {...props} onConfigChange={updateNodeConfig} />
+      ),
+    }),
+    [updateNodeConfig],
+  );
 
   const resetNodeStatuses = () => {
     setNodes((nds) =>
