@@ -3,7 +3,9 @@ use std::{
 };
 
 use axum::{
-    Json, extract::{Path, Query}, http::header, response::{IntoResponse, Sse, sse::Event}
+    Json, body::Body, extract::{Path, Query}, http::{StatusCode, header}, response::{
+        IntoResponse, Response, Sse, sse::{Event, KeepAlive}
+    }
 };
 use chrono::Utc;
 use log::info;
@@ -129,35 +131,44 @@ pub async fn get(Path(id): Path<String>) -> Result<Json<Workflow>, AppError> {
 pub async fn execute_workflow(Json(workflow): Json<Workflow>) -> impl IntoResponse {
     let (sender, receiver) = mpsc::unbounded_channel();
     tokio::spawn(async move {
-        run_workflow(workflow, sender, false, None).await;
+        run_workflow(workflow, Some(sender), false, None).await;
     });
 
     sse_response(receiver)
 }
 
-pub async fn execute(Path(id): Path<String>, Query(param): Query<WorkflowReqParam>) -> impl IntoResponse {
+pub async fn execute(Path(id): Path<String>, Query(param): Query<WorkflowReqParam>) -> Response<Body> {
+    let data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).read().await;
+    let index = match data.iter().position(|w| w.id == Some(id.clone())) {
+        Some(idx) => idx,
+        None => {
+            // let _ = sse::send_error(format!("工作流不存在：id={}", id), &sender);
+            return (
+                axum::http::StatusCode::OK,
+                format!("工作流不存在：id={}", id),
+            )
+                .into_response();
+        }
+    };
+    let workflow = data[index].clone(); // 克隆 workflow 以避免锁持有太久
+    drop(data); // 尽早释放锁
+
+    if workflow.nodes.iter().any(|node| node.kind == "output") {
+        let output = run_workflow(workflow, None, true, param.input).await.unwrap();
+        return (axum::http::StatusCode::OK, output).into_response();
+    }
+
     let (sender, receiver) = mpsc::unbounded_channel();
 
     tokio::spawn(async move {
-        let data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).read().await;
-        let index = match data.iter().position(|w| w.id == Some(id.clone())) {
-            Some(idx) => idx,
-            None => {
-                let _ = sse::send_error(format!("工作流不存在：id={}", id), &sender);
-                return;
-            }
-        };
-
-        let workflow = data[index].clone(); // 克隆 workflow 以避免锁持有太久
-        drop(data); // 尽早释放锁
-
-        run_workflow(workflow, sender, true, param.input).await;
+        run_workflow(workflow, Some(sender), true, param.input).await;
     });
 
-    sse_response(receiver)
+    sse_response(receiver).into_response()
 }
 
-async fn run_workflow(workflow: Workflow, sender: UnboundedSender<Result<Event, Infallible>>, record_execution: bool, input: Option<String>) {
+async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<Event, Infallible>>>, record_execution: bool, input: Option<String>) -> anyhow::Result<String> {
+    let mut result = String::new();
     let edges = workflow.edges.clone();
     let next_node_map = edges.iter().map(|edge| (edge.source.clone(), edge.target.clone())).collect::<HashMap<String, String>>();
     let mut nodes = workflow.nodes.clone();
@@ -188,12 +199,15 @@ async fn run_workflow(workflow: Workflow, sender: UnboundedSender<Result<Event, 
                     Ok((node_logs, output)) => {
                         logs.extend(node_logs);
                         if let Some(next_node) = next_node_map.get(node_id) {
-                            input_map.insert(next_node.clone(), output);
+                            input_map.insert(next_node.clone(), output.clone());
+                        }
+                        if node.kind == "output" {
+                            result = output;
                         }
                     }
                     Err(e) => {
                         let _ = sse::send_error(format!("Node execution failed: {}", e), &sender);
-                        return;
+                        return Err(e);
                     }
                 }
                 has_more = true;
@@ -225,9 +239,10 @@ async fn run_workflow(workflow: Workflow, sender: UnboundedSender<Result<Event, 
 
     // 发送完成信号
     let _ = sse::send_string("[DONE]".to_string(), &sender);
+    Ok(result)
 }
 
-async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<(Vec<Log>, String)> {
+async fn excute_node(node: &Node, sender: &Option<UnboundedSender<Result<Event, Infallible>>>) -> anyhow::Result<(Vec<Log>, String)> {
     info!("Executing node: {:?}", node);
     let mut logs = vec![];
     let log_data = LogData { kind: "node_start".to_string(), node_id: node.id.clone(), node_type: Some(node.kind.clone()), result: None, data: None };
@@ -235,6 +250,7 @@ async fn excute_node(node: &Node, sender: &UnboundedSender<Result<Event, Infalli
     sse::send_json(log_data, sender)?;
     let (node_logs, output) = match node.kind.as_str() {
         "input" => node::input::execute(node, sender).await?,
+        "output" => node::output::execute(node, sender).await?,
         "ai-model" => node::llm::execute(node, sender).await?,
         "http-request" => node::http::execute(node, sender).await?,
         "lua-script" => node::lua_script::execute(node, sender).await?,
@@ -254,3 +270,21 @@ fn sse_response(receiver: UnboundedReceiver<Result<Event, Infallible>>) -> impl 
         Sse::new(stream),
     )
 }
+
+// fn sse_response(receiver: UnboundedReceiver<Result<Event, Infallible>>) -> impl IntoResponse {
+//     // 构建 HeaderMap
+//     let mut headers = header::HeaderMap::new();
+//     headers.insert(
+//         header::CONTENT_TYPE,
+//         "text/event-stream; charset=utf-8".parse().unwrap(),
+//     );
+//     headers.insert(header::CACHE_CONTROL, "no-cache".parse().unwrap());
+//     headers.insert(header::CONNECTION, "keep-alive".parse().unwrap());
+
+//     // 创建流
+//     let stream = UnboundedReceiverStream::new(receiver);
+//     let sse = Sse::new(stream).keep_alive(KeepAlive::default());
+
+//     // 返回 (HeaderMap, Sse)
+//     (headers, sse).into_response()
+// }

@@ -9,11 +9,11 @@ use super::super::{
 };
 
 pub async fn execute(node: &Node, sender: &Option<UnboundedSender<Result<Event, Infallible>>>) -> anyhow::Result<(Vec<Log>, String)> {
-    let input = node.config.get("input").map(|v| v.to_string());
-    let log_data = LogData { kind: "input".to_string(), data: input.clone(), node_id: node.id.clone(), node_type: None, result: None };
+    let output = node.config.get("output").map(|v| v.to_string());
+    let log_data = LogData { kind: "output".to_string(), data: output.clone(), node_id: node.id.clone(), node_type: None, result: None };
     sse::send_json(log_data.clone(), sender)?;
     return Ok((
         vec![Log { timestamp: Utc::now(), data: log_data }],
-        input.unwrap_or("".to_string()),
+        output.unwrap_or("".to_string()),
     ));
 }

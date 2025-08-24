@@ -11,7 +11,7 @@ use super::super::{
     model::{Log, LogData, Node}, sse
 };
 
-pub async fn execute(node: &Node, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<(Vec<Log>, String)> {
+pub async fn execute(node: &Node, sender: &Option<UnboundedSender<Result<Event, Infallible>>>) -> anyhow::Result<(Vec<Log>, String)> {
     let base_url = node.config.get("baseUrl").map(|v| v.to_string()).unwrap_or("http://222.190.139.186:11436/v1".to_string());
     let api_key = node.config.get("apiKey").map(|v| v.to_string()).unwrap_or("None".to_string());
     let model = node.config.get("model").map(|v| v.to_string()).unwrap_or("qwen3:14b".to_string());

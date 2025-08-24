@@ -10,7 +10,7 @@ use super::super::{
     model::{Log, LogData, Node}, sse
 };
 
-pub async fn execute(node: &Node, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<(Vec<Log>, String)> {
+pub async fn execute(node: &Node, sender: &Option<UnboundedSender<Result<Event, Infallible>>>) -> anyhow::Result<(Vec<Log>, String)> {
     let script = node.config.get("script").map(|v| v.to_string()).unwrap_or("".to_string());
     let lua = Lua::new();
 

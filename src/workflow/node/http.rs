@@ -9,7 +9,7 @@ use super::super::{
     model::{Log, LogData, Node}, sse::send_json
 };
 
-pub async fn execute(node: &Node, sender: &UnboundedSender<Result<Event, Infallible>>) -> anyhow::Result<(Vec<Log>, String)> {
+pub async fn execute(node: &Node, sender: &Option<UnboundedSender<Result<Event, Infallible>>>) -> anyhow::Result<(Vec<Log>, String)> {
     let mut logs = vec![];
     let mut output = String::new();
     let url = node.config.get("url");
