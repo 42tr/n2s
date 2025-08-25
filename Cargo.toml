@@ -19,3 +19,5 @@ async-openai = "0.29.1"
 uuid = { version = "1.5", features = ["v4", "serde"] }
 reqwest = "0.12.23"
 mlua = { version = "0.10", features = ["lua54", "vendored", "send"] }
+rust-embed = "8.0.0"
+mime_guess = "2.0"

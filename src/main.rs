@@ -1,9 +1,13 @@
-use axum::routing::{Router, delete, get, post};
+use axum::{
+    http::{StatusCode, Uri}, response::{IntoResponse, Response}, routing::{Router, delete, get, post}
+};
 use tower_http::{
     cors::{Any, CorsLayer}, services::ServeDir
 };
 mod error;
 mod workflow;
+use mime_guess::from_path;
+use rust_embed::RustEmbed;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -22,11 +26,38 @@ async fn main() -> anyhow::Result<()> {
         .route("/workflow/{id}/run", get(workflow::execute))
         .route("/workflow/{id}/history", get(workflow::get_executions));
 
-    let app = Router::new().nest("/api", api_router).fallback_service(ServeDir::new("../frontend/dist").append_index_html_on_directories(true)).layer(cors);
+    let app = Router::new().nest("/api", api_router).fallback(get(frontend_router)).layer(cors);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
     axum::serve(listener, app).await?;
     Ok(())
+}
+
+#[derive(RustEmbed)]
+#[folder = "frontend/dist/"] // 静态文件目录
+struct WebAssets;
+
+// 路由匹配
+async fn frontend_router(uri: Uri) -> Response {
+    let path = uri.path();
+
+    if path.starts_with("/") { serve_asset::<WebAssets>(path, "/").unwrap_or(not_found()) } else { not_found() }
+}
+
+fn not_found() -> Response {
+    Response::builder().status(StatusCode::NOT_FOUND).body("404 Not Found".into()).unwrap()
+}
+
+// 通用静态文件处理函数
+fn serve_asset<Asset: RustEmbed>(uri_path: &str, base_path: &str) -> Option<Response> {
+    let sub_path = uri_path.trim_start_matches(base_path).trim_start_matches('/');
+    let file = if sub_path.is_empty() { "index.html" } else { sub_path };
+
+    Asset::get(file).map(|content| {
+        let body = content.data.into_owned();
+        let mime = from_path(file).first_or_octet_stream();
+        ([("Content-Type", mime.to_string())], body).into_response()
+    })
 }
 
 async fn init_log() {
