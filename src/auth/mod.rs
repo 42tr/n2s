@@ -78,8 +78,9 @@ pub fn verify_jwt(token: &str) -> Result<Claims, jsonwebtoken::errors::Error> {
 }
 
 pub async fn auth_middleware(mut request: Request, next: Next) -> Result<Response, StatusCode> {
+    // 首先检查 Authorization header
     let auth_header = request.headers().get(header::AUTHORIZATION).and_then(|header| header.to_str().ok());
-
+    
     if let Some(auth_header) = auth_header {
         if let Some(token) = auth_header.strip_prefix("Bearer ") {
             match verify_jwt(token) {
@@ -87,7 +88,25 @@ pub async fn auth_middleware(mut request: Request, next: Next) -> Result<Respons
                     request.extensions_mut().insert(claims);
                     return Ok(next.run(request).await);
                 }
-                Err(_) => return Err(StatusCode::UNAUTHORIZED),
+                Err(_) => {} // 继续检查URL参数
+            }
+        }
+    }
+    
+    // 检查URL中的token参数
+    let uri = request.uri();
+    if let Some(query) = uri.query() {
+        for param in query.split('&') {
+            if let Some(token_value) = param.strip_prefix("token=") {
+                // URL解码token
+                let token = urlencoding::decode(token_value).unwrap_or_default();
+                match verify_jwt(&token) {
+                    Ok(claims) => {
+                        request.extensions_mut().insert(claims);
+                        return Ok(next.run(request).await);
+                    }
+                    Err(_) => {} // token无效，继续检查其他认证方式
+                }
             }
         }
     }
