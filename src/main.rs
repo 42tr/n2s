@@ -1,9 +1,7 @@
 use axum::{
     http::{StatusCode, Uri}, response::{IntoResponse, Response}, routing::{Router, delete, get, post}
 };
-use tower_http::{
-    cors::{Any, CorsLayer}, services::ServeDir
-};
+use tower_http::cors::{Any, CorsLayer};
 mod error;
 mod workflow;
 use mime_guess::from_path;
@@ -28,7 +26,7 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new().nest("/api", api_router).fallback(get(frontend_router)).layer(cors);
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3333").await?;
     axum::serve(listener, app).await?;
     Ok(())
 }
