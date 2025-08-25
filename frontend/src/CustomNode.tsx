@@ -77,6 +77,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
       border: `2px solid ${borderColor}`,
       borderRadius: "8px",
       minWidth: "180px",
+      maxWidth: "1000px",
       background: backgroundColor,
       color: "#333",
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
@@ -114,6 +115,13 @@ const CustomNode: React.FC<CustomNodeProps> = ({
       default:
         return "";
     }
+  };
+
+  const truncateText = (text: string, maxLength: number = 444): string => {
+    if (text && text.length > maxLength) {
+      return text.substring(0, maxLength) + "...";
+    }
+    return text;
   };
 
   const handleConfigChange = (key: string, value: string) => {
@@ -702,7 +710,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
                   lineHeight: "1.4",
                 }}
               >
-                {data.output}
+                {data.nodeType === "input" ? truncateText(data.output) : data.output}
               </div>
             </div>
           )}
@@ -719,9 +727,17 @@ const CustomNode: React.FC<CustomNodeProps> = ({
             }}
           >
             <div
-              style={{ marginBottom: "8px", fontSize: "10px", color: "#666" }}
+              style={{ 
+                marginBottom: "8px", 
+                fontSize: "10px", 
+                color: "#666",
+                wordBreak: "break-all",
+                overflowWrap: "break-word"
+              }}
             >
-              当前配置: {JSON.stringify(config)}
+              当前配置: {data.nodeType === "input" && config.input ? 
+                JSON.stringify({...config, input: truncateText(config.input)}) : 
+                JSON.stringify(config)}
             </div>
             <button
               onClick={() => setIsEditing(false)}
