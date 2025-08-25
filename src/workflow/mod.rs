@@ -3,9 +3,7 @@ use std::{
 };
 
 use axum::{
-    Json, body::Body, extract::{Path, Query}, http::{StatusCode, header}, response::{
-        IntoResponse, Response, Sse, sse::{Event, KeepAlive}
-    }
+    Json, body::Body, extract::{Path, Query}, http::header, response::{IntoResponse, Response, Sse, sse::Event}
 };
 use chrono::Utc;
 use log::info;
@@ -131,7 +129,7 @@ pub async fn get(Path(id): Path<String>) -> Result<Json<Workflow>, AppError> {
 pub async fn execute_workflow(Json(workflow): Json<Workflow>) -> impl IntoResponse {
     let (sender, receiver) = mpsc::unbounded_channel();
     tokio::spawn(async move {
-        run_workflow(workflow, Some(sender), false, None).await;
+        let _ = run_workflow(workflow, Some(sender), false, None).await;
     });
 
     sse_response(receiver)
@@ -142,7 +140,6 @@ pub async fn execute(Path(id): Path<String>, Query(param): Query<WorkflowReqPara
     let index = match data.iter().position(|w| w.id == Some(id.clone())) {
         Some(idx) => idx,
         None => {
-            // let _ = sse::send_error(format!("工作流不存在：id={}", id), &sender);
             return (
                 axum::http::StatusCode::OK,
                 format!("工作流不存在：id={}", id),
@@ -161,7 +158,7 @@ pub async fn execute(Path(id): Path<String>, Query(param): Query<WorkflowReqPara
     let (sender, receiver) = mpsc::unbounded_channel();
 
     tokio::spawn(async move {
-        run_workflow(workflow, Some(sender), true, param.input).await;
+        let _ = run_workflow(workflow, Some(sender), true, param.input).await;
     });
 
     sse_response(receiver).into_response()
