@@ -1,9 +1,10 @@
 use axum::{
-    http::{StatusCode, Uri}, response::{IntoResponse, Response}, routing::{Router, delete, get, post}
+    http::{StatusCode, Uri}, response::{IntoResponse, Response}, routing::{Router, delete, get, post}, middleware
 };
 use tower_http::cors::{Any, CorsLayer};
 mod error;
 mod workflow;
+mod auth;
 use mime_guess::from_path;
 use rust_embed::RustEmbed;
 
@@ -14,15 +15,21 @@ async fn main() -> anyhow::Result<()> {
 
     let cors = CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any).allow_credentials(false);
 
-    let api_router = Router::new()
-        .route("/health", get(|| async { "OK" }))
+    let protected_routes = Router::new()
         .route("/workflows", get(workflow::list))
         .route("/workflow", post(workflow::create_or_update))
         .route("/workflow/run", post(workflow::execute_workflow))
         .route("/workflow/{id}", get(workflow::get))
         .route("/workflow/{id}", delete(workflow::delete))
         .route("/workflow/{id}/run", get(workflow::execute))
-        .route("/workflow/{id}/history", get(workflow::get_executions));
+        .route("/workflow/{id}/history", get(workflow::get_executions))
+        .route_layer(middleware::from_fn(auth::auth_middleware));
+
+    let api_router = Router::new()
+        .route("/health", get(|| async { "OK" }))
+        .route("/login", post(auth::handlers::login))
+        .route("/register", post(auth::handlers::register))
+        .merge(protected_routes);
 
     let app = Router::new().nest("/api", api_router).fallback(get(frontend_router)).layer(cors);
 

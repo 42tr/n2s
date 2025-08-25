@@ -51,8 +51,15 @@ const ExecutionHistory: React.FC = () => {
 
     try {
       setLoading(true);
+      const token = localStorage.getItem('auth_token');
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/workflow/${id}/history`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
       );
       if (response.ok) {
         const data = await response.json();

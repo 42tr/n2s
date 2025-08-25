@@ -39,8 +39,15 @@ const WorkflowManagement: React.FC = () => {
   // 加载所有工作流
   const loadWorkflows = async () => {
     try {
+      const token = localStorage.getItem('auth_token');
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/workflows`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
       );
       if (response.ok) {
         const data = await response.json();
@@ -55,8 +62,15 @@ const WorkflowManagement: React.FC = () => {
   const loadExecutions = async (workflowId: string) => {
     try {
       setLoading(true);
+      const token = localStorage.getItem('auth_token');
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/workflow/${workflowId}/history`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
       );
       if (response.ok) {
         const data = await response.json();
@@ -76,10 +90,15 @@ const WorkflowManagement: React.FC = () => {
     }
 
     try {
+      const token = localStorage.getItem('auth_token');
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/workflow/${workflowId}`,
         {
           method: "DELETE",
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         },
       );
 
@@ -102,11 +121,13 @@ const WorkflowManagement: React.FC = () => {
   const updateWorkflowName = async (workflow: Workflow, newName: string) => {
     try {
       workflow.name = newName;
+      const token = localStorage.getItem('auth_token');
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/workflow`,
         {
           method: "POST",
           headers: {
+            'Authorization': `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify(workflow),
@@ -141,11 +162,13 @@ const WorkflowManagement: React.FC = () => {
   // 运行工作流
   const runWorkflow = async (workflowId: string) => {
     try {
+      const token = localStorage.getItem('auth_token');
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/workflow/${workflowId}/run`,
         {
           method: "GET",
           headers: {
+            'Authorization': `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         },
