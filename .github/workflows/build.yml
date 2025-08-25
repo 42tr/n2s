@@ -1,0 +1,70 @@
+name: Rust CI and save
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: 42tr
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "22.11.0"
+
+      - name: Build Frontend
+        run: |
+          cd frontend/
+          npm install
+          npm run build
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install cross
+        run: cargo install cross
+
+      - name: Create Cross.toml
+        run: |
+          cat <<EOF > Cross.toml
+          [target.aarch64-unknown-linux-musl.env]
+          passthrough = ["DATABASE_URL"]
+          EOF
+
+      - name: Set environment variables
+        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
+
+      - name: Build project for Raspberry Pi (ARM64)
+        run: |
+          cross build --target aarch64-unknown-linux-musl --release
+
+      - name: Create directory on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script: |
+            mkdir -p /home/aarch64/n2s/
+
+      - name: Copy file via scp
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          source: "target/aarch64-unknown-linux-musl/release/n2s"
+          target: "/home/aarch64/n2s/"
