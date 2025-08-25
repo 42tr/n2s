@@ -13,6 +13,7 @@ pub mod handlers;
 
 const JWT_SECRET: &[u8] = b"your-secret-key";
 const USERS_FILE: &str = "users.json";
+const REGISTRATION_CODE: &str = "N2S2024";
 static USERS: Lazy<Mutex<HashMap<String, User>>> = Lazy::new(|| {
     let users = load_users_from_file().unwrap_or_default();
     Mutex::new(users)
@@ -40,6 +41,7 @@ pub struct LoginRequest {
 pub struct RegisterRequest {
     pub username: String,
     pub password: String,
+    pub registration_code: String,
 }
 
 #[derive(Debug, Serialize)]

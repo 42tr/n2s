@@ -6,6 +6,7 @@ const Login: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [registrationCode, setRegistrationCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -24,18 +25,38 @@ const Login: React.FC = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify(isLogin ? { username, password } : { username, password, registration_code: registrationCode }),
       });
 
       if (response.ok) {
         const data = await response.json();
         login(data.token, username);
       } else {
-        setError(
-          isLogin
-            ? "登录失败，请检查用户名和密码"
-            : "注册失败，用户名可能已存在",
-        );
+        if (!isLogin) {
+          // 注册错误处理
+          switch (response.status) {
+            case 400:
+              setError("密码长度至少6位");
+              break;
+            case 403:
+              setError("注册码错误，请检查注册码");
+              break;
+            case 409:
+              setError("用户名已存在，请选择其他用户名");
+              break;
+            default:
+              setError("注册失败，请稍后重试");
+          }
+        } else {
+          // 登录错误处理
+          switch (response.status) {
+            case 401:
+              setError("用户名或密码错误");
+              break;
+            default:
+              setError("登录失败，请稍后重试");
+          }
+        }
       }
     } catch (err) {
       setError("网络错误，请稍后重试");
@@ -69,6 +90,19 @@ const Login: React.FC = () => {
               required
             />
           </div>
+          {!isLogin && (
+            <div className="form-group">
+              <label htmlFor="registrationCode">注册码</label>
+              <input
+                type="text"
+                id="registrationCode"
+                value={registrationCode}
+                onChange={(e) => setRegistrationCode(e.target.value)}
+                placeholder="请输入注册码"
+                required
+              />
+            </div>
+          )}
           {error && <div className="error">{error}</div>}
           <button type="submit" disabled={loading}>
             {loading ? "处理中..." : isLogin ? "登录" : "注册"}
