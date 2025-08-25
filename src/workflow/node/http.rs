@@ -1,4 +1,4 @@
-use std::{convert::Infallible, str::FromStr};
+use std::{convert::Infallible, str::FromStr, time::Duration};
 
 use axum::response::sse::Event;
 use chrono::Utc;
@@ -35,7 +35,7 @@ pub async fn execute(node: &Node, sender: &Option<UnboundedSender<Result<Event, 
             }
         }
         let request = request.headers(header_map);
-        let request = request.body(body.clone());
+        let request = request.body(body.clone()).timeout(Duration::from_secs(3));
         let response = request.send().await;
         match response {
             Ok(response) => {
