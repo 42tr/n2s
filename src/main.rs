@@ -1,5 +1,6 @@
 use axum::{
-    http::{StatusCode, Uri}, response::{IntoResponse, Response}, routing::{Router, delete, get, post}, middleware
+    http::{StatusCode, Uri}, response::{IntoResponse, Response}, routing::{Router, delete, get, post}, middleware,
+    extract::DefaultBodyLimit
 };
 use tower_http::cors::{Any, CorsLayer};
 mod error;
@@ -31,7 +32,11 @@ async fn main() -> anyhow::Result<()> {
         .route("/register", post(auth::handlers::register))
         .merge(protected_routes);
 
-    let app = Router::new().nest("/api", api_router).fallback(get(frontend_router)).layer(cors);
+    let app = Router::new()
+        .nest("/api", api_router)
+        .fallback(get(frontend_router))
+        .layer(DefaultBodyLimit::max(50 * 1024 * 1024)) // 50MB limit
+        .layer(cors);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3333").await?;
     axum::serve(listener, app).await?;
