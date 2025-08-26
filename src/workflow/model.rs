@@ -31,6 +31,8 @@ impl Node {
 pub struct Edge {
     pub source: String,
     pub target: String,
+    #[serde(rename = "sourceHandle", skip_serializing_if = "Option::is_none")]
+    pub source_handle: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

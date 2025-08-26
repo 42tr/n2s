@@ -721,21 +721,85 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 
   const showLeftHandle = data.nodeType !== "input";
   const showRightHandle = data.nodeType !== "output";
+  
+  // 条件节点的特殊处理，添加 true 和 false 两个输出
+  const renderHandles = () => {
+    if (data.nodeType === "condition") {
+      return (
+        <>
+          <Handle
+            type="target"
+            position={Position.Left}
+            style={{
+              background: "#555",
+              width: "8px",
+              height: "8px",
+              border: "2px solid white",
+            }}
+          />
+          {/* True 输出 */}
+          <Handle
+            type="source"
+            position={Position.Right}
+            id="true"
+            style={{
+              top: "30%",
+              background: "#28a745", // 绿色表示 true
+              width: "8px",
+              height: "8px",
+              border: "2px solid white",
+            }}
+          />
+          {/* False 输出 */}
+          <Handle
+            type="source"
+            position={Position.Right}
+            id="false"
+            style={{
+              top: "70%",
+              background: "#dc3545", // 红色表示 false
+              width: "8px",
+              height: "8px",
+              border: "2px solid white",
+            }}
+          />
+        </>
+      );
+    }
+    
+    return (
+      <>
+        {showLeftHandle && (
+          <Handle
+            type="target"
+            position={Position.Left}
+            style={{
+              background: "#555",
+              width: "8px",
+              height: "8px",
+              border: "2px solid white",
+            }}
+          />
+        )}
+        {showRightHandle && (
+          <Handle
+            type="source"
+            position={Position.Right}
+            style={{
+              background: "#555",
+              width: "8px",
+              height: "8px",
+              border: "2px solid white",
+            }}
+          />
+        )}
+      </>
+    );
+  };
 
   return (
     <div style={{ position: "relative" }}>
-      {showLeftHandle && (
-        <Handle
-          type="target"
-          position={Position.Left}
-          style={{
-            background: "#555",
-            width: "8px",
-            height: "8px",
-            border: "2px solid white",
-          }}
-        />
-      )}
+      {renderHandles()}
 
       <div
         style={getNodeStyle(data.nodeType, data.status)}
@@ -1006,18 +1070,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
         )}
       </div>
 
-      {showRightHandle && (
-        <Handle
-          type="source"
-          position={Position.Right}
-          style={{
-            background: "#555",
-            width: "8px",
-            height: "8px",
-            border: "2px solid white",
-          }}
-        />
-      )}
+      {/* 移除这里的Handle，因为已经在renderHandles函数中处理了 */}
     </div>
   );
 };

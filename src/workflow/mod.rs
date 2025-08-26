@@ -167,7 +167,25 @@ pub async fn execute(Path(id): Path<String>, Query(param): Query<WorkflowReqPara
 async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<Event, Infallible>>>, record_execution: bool, input: Option<String>) -> anyhow::Result<String> {
     let mut result = String::new();
     let edges = workflow.edges.clone();
-    let next_node_map = edges.iter().map(|edge| (edge.source.clone(), edge.target.clone())).collect::<HashMap<String, String>>();
+    
+    // 创建节点连接映射，支持条件节点的 true/false 输出
+    let mut next_node_map: HashMap<(String, Option<String>), String> = HashMap::new();
+    for edge in &edges {
+        // 检查边是否有 sourceHandle（用于条件节点的 true/false 输出）
+        if let Some(source_handle) = &edge.source_handle {
+            // 使用 sourceHandle 作为输出标识符（条件节点的 true/false 输出）
+            next_node_map.insert((edge.source.clone(), Some(source_handle.clone())), edge.target.clone());
+            info!("添加条件连接: ({}, {:?}) -> {}", edge.source, source_handle, edge.target);
+        } else {
+            // 普通边
+            next_node_map.insert((edge.source.clone(), None), edge.target.clone());
+            info!("添加普通连接: ({}, None) -> {}", edge.source, edge.target);
+        }
+    }
+    
+    // 打印完整的next_node_map用于调试
+    info!("完整的next_node_map: {:?}", next_node_map);
+    
     let mut nodes = workflow.nodes.clone();
 
     // 找出起始节点（没有前驱的节点）
@@ -183,10 +201,12 @@ async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<
 
     let mut logs = Vec::new();
     let start_time = Utc::now();
+    let mut node_outputs: HashMap<String, String> = HashMap::new(); // 存储节点执行结果
 
     loop {
         let mut has_more = false;
 
+        // 执行当前层的所有节点
         for node_id in &start_nodes {
             if let Some(node) = nodes.iter_mut().find(|n| n.id == *node_id) {
                 if let Some(input) = input_map.get(node_id) {
@@ -195,9 +215,10 @@ async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<
                 match excute_node(node, &sender).await {
                     Ok((node_logs, output)) => {
                         logs.extend(node_logs);
-                        if let Some(next_node) = next_node_map.get(node_id) {
-                            input_map.insert(next_node.clone(), output.clone());
-                        }
+                        
+                        // 存储节点输出结果
+                        node_outputs.insert(node_id.clone(), output.clone());
+                        
                         if node.kind == "output" {
                             result = output;
                         }
@@ -211,8 +232,48 @@ async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<
             }
         }
 
-        // 下一层节点：当前执行节点的所有后继
-        start_nodes = edges.iter().filter(|edge| start_nodes.contains(&edge.source)).map(|edge| edge.target.clone()).collect();
+        // 构建下一层节点
+        let mut next_nodes = Vec::new();
+        
+        for node_id in &start_nodes {
+            if let Some(node) = nodes.iter().find(|n| n.id == *node_id) {
+                if node.kind == "condition" {
+                    // 条件节点：根据实际输出结果选择后续节点
+                    if let Some(output) = node_outputs.get(node_id) {
+                        let output_str = output.as_str();
+                        info!("条件节点 {} 实际输出: {}", node_id, output_str);
+                        
+                        // 使用实际输出匹配source_handle
+                        let next_node = next_node_map.get(&(node_id.clone(), Some(output_str.to_string())));
+                        
+                        if let Some(next_node) = next_node {
+                            info!("找到条件节点 {} 的后续节点: {}", node_id, next_node);
+                            next_nodes.push(next_node.clone());
+                            
+                            // 获取条件节点的输入值作为下一节点的输入
+                            if let Some(input_value) = input_map.get(node_id) {
+                                input_map.insert(next_node.clone(), input_value.clone());
+                            }
+                        } else {
+                            info!("未找到条件节点 {} 输出 {} 的后续节点", node_id, output_str);
+                        }
+                    }
+                } else {
+                    // 普通节点：添加所有后继节点
+                    if let Some(next_node) = next_node_map.get(&(node_id.clone(), None)) {
+                        info!("添加普通节点 {} 的后续节点: {}", node_id, next_node);
+                        next_nodes.push(next_node.clone());
+                        
+                        // 使用当前节点的输出作为下一节点的输入
+                        if let Some(output) = node_outputs.get(node_id) {
+                            input_map.insert(next_node.clone(), output.clone());
+                        }
+                    }
+                }
+            }
+        }
+        
+        start_nodes = next_nodes;
 
         if !has_more || start_nodes.is_empty() {
             break;
@@ -252,10 +313,11 @@ async fn excute_node(node: &Node, sender: &Option<UnboundedSender<Result<Event, 
         "http-request" => node::http::execute(node, sender).await?,
         "lua-script" => node::lua_script::execute(node, sender).await?,
         "postgresql" => node::postgresql::execute(node, sender).await?,
+        "condition" => node::condition::execute(node, sender).await?,
         _ => (vec![], "".to_string()),
     };
     logs.extend(node_logs);
-    let log_data = LogData { kind: "node_complete".to_string(), data: None, node_id: node.id.clone(), node_type: Some("input".to_string()), result: None };
+    let log_data = LogData { kind: "node_complete".to_string(), data: None, node_id: node.id.clone(), node_type: Some(node.kind.clone()), result: None };
     logs.push(Log { timestamp: Utc::now(), data: log_data.clone() });
     sse::send_json(log_data, sender).unwrap();
     Ok((logs, output))
