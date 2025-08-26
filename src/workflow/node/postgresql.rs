@@ -2,7 +2,7 @@ use std::{convert::Infallible, time::Duration};
 
 use axum::response::sse::Event;
 use chrono::Utc;
-use serde_json::{Value, json};
+use serde_json::json;
 use tokio::sync::mpsc::UnboundedSender;
 use tokio_postgres::{Client, NoTls};
 
@@ -128,15 +128,6 @@ async fn execute_query(client: &Client, query: &str) -> anyhow::Result<String> {
 
     // Get column names and types
     let columns = rows[0].columns();
-    let column_info: Vec<Value> = columns
-        .iter()
-        .map(|col| {
-            json!({
-                "name": col.name(),
-                "type": col.type_().name()
-            })
-        })
-        .collect();
 
     // Extract data rows
     let mut data_rows = Vec::new();
@@ -176,7 +167,6 @@ async fn execute_query(client: &Client, query: &str) -> anyhow::Result<String> {
     let result = json!({
         "success": true,
         "message": format!("查询执行成功，返回 {} 条记录", data_rows.len()),
-        "columns": column_info,
         "data": data_rows,
         "row_count": data_rows.len()
     });
