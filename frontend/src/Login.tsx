@@ -25,7 +25,11 @@ const Login: React.FC = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(isLogin ? { username, password } : { username, password, registration_code: registrationCode }),
+        body: JSON.stringify(
+          isLogin
+            ? { username, password }
+            : { username, password, registration_code: registrationCode },
+        ),
       });
 
       if (response.ok) {
@@ -59,7 +63,7 @@ const Login: React.FC = () => {
         }
       }
     } catch (err) {
-      setError("网络错误，请稍后重试");
+      setError("网络错误，请稍后重试：" + err);
     } finally {
       setLoading(false);
     }
