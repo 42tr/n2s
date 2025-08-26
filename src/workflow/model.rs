@@ -16,6 +16,7 @@ pub struct Node {
     pub kind: String,
     pub position: Position,
     pub config: HashMap<String, String>,
+    pub label: Option<String>,
 }
 
 impl Node {

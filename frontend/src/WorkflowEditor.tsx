@@ -115,6 +115,10 @@ const WorkflowEditor: React.FC = () => {
   const updateNodeConfig = useCallback(
     (nodeId: string, config: any) => {
       console.log("更新节点配置:", nodeId, config);
+      
+      // 从config中提取label
+      const { label, ...restConfig } = config;
+      
       setNodes((nds) =>
         nds.map((node) =>
           node.id === nodeId
@@ -122,7 +126,8 @@ const WorkflowEditor: React.FC = () => {
                 ...node,
                 data: {
                   ...node.data,
-                  config: config,
+                  config: restConfig, // 不包含label的配置
+                  label: label || node.data.label, // 如果提供了label，则更新节点标签
                 },
               }
             : node,
@@ -178,6 +183,7 @@ const WorkflowEditor: React.FC = () => {
         type: node.data.nodeType,
         position: node.position,
         config: node.data.config,
+        label: node.data.label, // 添加节点标签
       })),
       edges: edges.map((edge) => ({
         source: edge.source,
@@ -283,6 +289,7 @@ const WorkflowEditor: React.FC = () => {
         type: node.data.nodeType,
         position: node.position,
         config: node.data.config,
+        label: node.data.label, // 保存节点标签
       })),
       edges: edges.map((edge) => ({
         source: edge.source,
@@ -403,7 +410,7 @@ const WorkflowEditor: React.FC = () => {
         y: Math.random() * 300,
       },
       data: {
-        label: node.type,
+        label: node.label || node.type, // 优先使用保存的标签，如果没有则使用节点类型
         nodeType: node.type,
         config: node.config || {},
         status: "idle",
@@ -436,6 +443,7 @@ const WorkflowEditor: React.FC = () => {
         type: node.data.nodeType,
         position: node.position,
         config: node.data.config,
+        label: node.data.label, // 保存节点标签
       })),
       edges: edges.map((edge) => ({
         source: edge.source,

@@ -25,6 +25,13 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showErrorLog, setShowErrorLog] = useState(false);
+  const [isEditingLabel, setIsEditingLabel] = useState(false);
+  const [editedLabel, setEditedLabel] = useState(data.label);
+  
+  // 确保editedLabel与data.label保持同步
+  React.useEffect(() => {
+    setEditedLabel(data.label);
+  }, [data.label]);
 
   // 直接使用data.config，不创建额外的本地状态
   const config = data.config || {};
@@ -766,15 +773,63 @@ const CustomNode: React.FC<CustomNodeProps> = ({
               </span>
             )}
           </div>
-          <div
-            style={{
-              fontWeight: "bold",
-              fontSize: "14px",
-              marginBottom: "2px",
-            }}
-          >
-            {data.label}
-          </div>
+          {isEditingLabel ? (
+            <div style={{ marginBottom: "2px" }}>
+              <input
+                type="text"
+                value={editedLabel}
+                onChange={(e) => setEditedLabel(e.target.value)}
+                onBlur={() => {
+                  if (onConfigChange && editedLabel.trim() !== "") {
+                    // 更新节点标签
+                    onConfigChange(id, { ...config, label: editedLabel });
+                    setIsEditingLabel(false);
+                  } else {
+                    // 如果没有提供更新回调或标签为空，恢复原标签
+                    setEditedLabel(data.label);
+                    setIsEditingLabel(false);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    e.currentTarget.blur();
+                  } else if (e.key === "Escape") {
+                    setEditedLabel(data.label);
+                    setIsEditingLabel(false);
+                  }
+                  e.stopPropagation();
+                }}
+                autoFocus
+                style={{
+                  width: "100%",
+                  padding: "2px 4px",
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  border: "1px solid #ddd",
+                  borderRadius: "3px",
+                  textAlign: "center",
+                }}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          ) : (
+            <div
+              style={{
+                fontWeight: "bold",
+                fontSize: "14px",
+                marginBottom: "2px",
+                cursor: "pointer",
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditingLabel(true);
+              }}
+              title="点击编辑节点名称"
+            >
+              {data.label}
+            </div>
+          )}
           <div style={{ fontSize: "11px", color: "#666" }}>{data.nodeType}</div>
           {data.status && (
             <div style={{ fontSize: "10px", color: "#666", marginTop: "2px" }}>
