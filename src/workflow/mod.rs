@@ -251,6 +251,7 @@ async fn excute_node(node: &Node, sender: &Option<UnboundedSender<Result<Event, 
         "ai-model" => node::llm::execute(node, sender).await?,
         "http-request" => node::http::execute(node, sender).await?,
         "lua-script" => node::lua_script::execute(node, sender).await?,
+        "postgresql" => node::postgresql::execute(node, sender).await?,
         _ => (vec![], "".to_string()),
     };
     logs.extend(node_logs);

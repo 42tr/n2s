@@ -13,6 +13,7 @@ const Sidebar: React.FC = () => {
     { type: "output", label: "输出节点", icon: "📤" },
     { type: "http-request", label: "HTTP 请求", icon: "🌐" },
     { type: "lua-script", label: "LUA 脚本", icon: "🧩" },
+    { type: "postgresql", label: "PostgreSQL", icon: "🐘" },
   ];
 
   return (

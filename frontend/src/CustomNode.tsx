@@ -51,6 +51,10 @@ const CustomNode: React.FC<CustomNodeProps> = ({
         borderColor = "#607D8B"; // Deep Grey for HTTP Request
         backgroundColor = "#ECEFF1"; // Light Grey background
         break;
+      case "postgresql":
+        borderColor = "#336791"; // PostgreSQL blue
+        backgroundColor = "#E8F4FD"; // Light blue background
+        break;
     }
 
     // 根据执行状态覆盖样式
@@ -99,6 +103,8 @@ const CustomNode: React.FC<CustomNodeProps> = ({
         return "🌐";
       case "lua-script":
         return "🧩";
+      case "postgresql":
+        return "🐘";
       default:
         return "⚙️";
     }
@@ -508,6 +514,193 @@ const CustomNode: React.FC<CustomNodeProps> = ({
                   fontSize: "12px",
                   resize: "vertical",
                   outline: "none",
+                }}
+              />
+            </div>
+          </div>
+        );
+
+      case "postgresql":
+        return (
+          <div style={{ padding: "8px", borderTop: "1px solid #eee" }}>
+            <div style={{ marginBottom: "8px" }}>
+              <div
+                style={{
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  marginBottom: "2px",
+                }}
+              >
+                主机地址:
+              </div>
+              <input
+                type="text"
+                value={config.host || "localhost"}
+                onChange={(e) => handleConfigChange("host", e.target.value)}
+                onFocus={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                placeholder="localhost"
+                style={{
+                  width: "100%",
+                  padding: "4px 6px",
+                  fontSize: "12px",
+                  border: "1px solid #ddd",
+                  borderRadius: "3px",
+                  boxSizing: "border-box",
+                  outline: "none",
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: "8px" }}>
+              <div
+                style={{
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  marginBottom: "2px",
+                }}
+              >
+                端口:
+              </div>
+              <input
+                type="text"
+                value={config.port || "5432"}
+                onChange={(e) => handleConfigChange("port", e.target.value)}
+                onFocus={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                placeholder="5432"
+                style={{
+                  width: "100%",
+                  padding: "4px 6px",
+                  fontSize: "12px",
+                  border: "1px solid #ddd",
+                  borderRadius: "3px",
+                  boxSizing: "border-box",
+                  outline: "none",
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: "8px" }}>
+              <div
+                style={{
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  marginBottom: "2px",
+                }}
+              >
+                数据库名:
+              </div>
+              <input
+                type="text"
+                value={config.database || ""}
+                onChange={(e) => handleConfigChange("database", e.target.value)}
+                onFocus={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                placeholder="数据库名称"
+                style={{
+                  width: "100%",
+                  padding: "4px 6px",
+                  fontSize: "12px",
+                  border: "1px solid #ddd",
+                  borderRadius: "3px",
+                  boxSizing: "border-box",
+                  outline: "none",
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: "8px" }}>
+              <div
+                style={{
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  marginBottom: "2px",
+                }}
+              >
+                用户名:
+              </div>
+              <input
+                type="text"
+                value={config.username || ""}
+                onChange={(e) => handleConfigChange("username", e.target.value)}
+                onFocus={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                placeholder="用户名"
+                style={{
+                  width: "100%",
+                  padding: "4px 6px",
+                  fontSize: "12px",
+                  border: "1px solid #ddd",
+                  borderRadius: "3px",
+                  boxSizing: "border-box",
+                  outline: "none",
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: "8px" }}>
+              <div
+                style={{
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  marginBottom: "2px",
+                }}
+              >
+                密码:
+              </div>
+              <input
+                type="password"
+                value={config.password || ""}
+                onChange={(e) => handleConfigChange("password", e.target.value)}
+                onFocus={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                placeholder="密码"
+                style={{
+                  width: "100%",
+                  padding: "4px 6px",
+                  fontSize: "12px",
+                  border: "1px solid #ddd",
+                  borderRadius: "3px",
+                  boxSizing: "border-box",
+                  outline: "none",
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: "8px" }}>
+              <div
+                style={{
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  marginBottom: "2px",
+                }}
+              >
+                SQL 查询:
+              </div>
+              <textarea
+                value={config.query || ""}
+                onChange={(e) => handleConfigChange("query", e.target.value)}
+                onFocus={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                placeholder="SELECT * FROM table_name LIMIT 10;"
+                style={{
+                  width: "100%",
+                  padding: "4px 6px",
+                  fontSize: "12px",
+                  border: "1px solid #ddd",
+                  borderRadius: "3px",
+                  boxSizing: "border-box",
+                  outline: "none",
+                  minHeight: "60px",
+                  resize: "vertical",
+                  fontFamily: "monospace",
                 }}
               />
             </div>
