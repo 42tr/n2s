@@ -150,8 +150,14 @@ const WorkflowManagement: React.FC = () => {
   // 在编辑器中打开工作流
   const openInEditor = (workflow?: Workflow) => {
     if (workflow) {
-      // 编辑现有工作流
-      sessionStorage.setItem("editWorkflow", JSON.stringify(workflow));
+      // 编辑现有工作流，尝试使用sessionStorage，如果失败则直接跳转
+      try {
+        sessionStorage.setItem("editWorkflow", JSON.stringify(workflow));
+      } catch (error) {
+        console.warn("无法将工作流数据存储到sessionStorage，数据过大:", error);
+        // 清理可能的其他数据以释放空间
+        sessionStorage.clear();
+      }
       navigate("/editor/" + workflow.id);
     } else {
       // 新建工作流
