@@ -1,11 +1,10 @@
 use axum::{
-    http::{StatusCode, Uri}, response::{IntoResponse, Response}, routing::{Router, delete, get, post}, middleware,
-    extract::DefaultBodyLimit
+    extract::DefaultBodyLimit, http::{StatusCode, Uri}, middleware, response::{IntoResponse, Response}, routing::{Router, delete, get, post}
 };
 use tower_http::cors::{Any, CorsLayer};
+mod auth;
 mod error;
 mod workflow;
-mod auth;
 use mime_guess::from_path;
 use rust_embed::RustEmbed;
 
@@ -24,13 +23,10 @@ async fn main() -> anyhow::Result<()> {
         .route("/workflow/{id}", delete(workflow::delete))
         .route("/workflow/{id}/run", get(workflow::execute))
         .route("/workflow/{id}/history", get(workflow::get_executions))
+        .route("/v1/{*path}", get(workflow::execute_path))
         .route_layer(middleware::from_fn(auth::auth_middleware));
 
-    let api_router = Router::new()
-        .route("/health", get(|| async { "OK" }))
-        .route("/login", post(auth::handlers::login))
-        .route("/register", post(auth::handlers::register))
-        .merge(protected_routes);
+    let api_router = Router::new().route("/health", get(|| async { "OK" })).route("/login", post(auth::handlers::login)).route("/register", post(auth::handlers::register)).merge(protected_routes);
 
     let app = Router::new()
         .nest("/api", api_router)

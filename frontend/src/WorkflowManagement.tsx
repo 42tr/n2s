@@ -73,12 +73,9 @@ const WorkflowManagement: React.FC = () => {
     }
 
     try {
-      const response = await apiRequest(
-        `/workflow/${workflowId}`,
-        {
-          method: "DELETE",
-        },
-      );
+      const response = await apiRequest(`/workflow/${workflowId}`, {
+        method: "DELETE",
+      });
 
       if (response.ok) {
         await loadWorkflows();
@@ -99,13 +96,10 @@ const WorkflowManagement: React.FC = () => {
   const updateWorkflowName = async (workflow: Workflow, newName: string) => {
     try {
       workflow.name = newName;
-      const response = await apiRequest(
-        "/workflow",
-        {
-          method: "POST",
-          body: JSON.stringify(workflow),
-        },
-      );
+      const response = await apiRequest("/workflow", {
+        method: "POST",
+        body: JSON.stringify(workflow),
+      });
 
       if (response.ok) {
         await loadWorkflows();
@@ -116,7 +110,10 @@ const WorkflowManagement: React.FC = () => {
       }
     } catch (error) {
       console.error("更新工作流失败:", error);
-      alert("更新失败");
+      alert("更新失败：" + error);
+      await loadWorkflows();
+      setEditingWorkflow(null);
+      setNewWorkflowName("");
     }
   };
 
@@ -141,12 +138,9 @@ const WorkflowManagement: React.FC = () => {
   // 运行工作流
   const runWorkflow = async (workflowId: string) => {
     try {
-      const response = await apiRequest(
-        `/workflow/${workflowId}/run`,
-        {
-          method: "GET",
-        },
-      );
+      const response = await apiRequest(`/workflow/${workflowId}/run`, {
+        method: "GET",
+      });
 
       if (response.ok) {
         // 刷新执行历史

@@ -41,7 +41,10 @@ pub async fn execute(node: &Node, sender: &Option<UnboundedSender<Result<Event, 
                 sse::send_json(log_data, sender).unwrap();
                 output.push_str(&c.text);
             }),
-            Err(e) => eprintln!("{}", e),
+            Err(e) => {
+                eprintln!("{}", e);
+                break;
+            }
         }
     }
     Ok((logs, output))

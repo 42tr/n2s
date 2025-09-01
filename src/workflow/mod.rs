@@ -73,6 +73,17 @@ pub async fn create_or_update(Json(mut workflow): Json<Workflow>) -> Result<Json
         workflow.updated_at = Some(updated_at);
         let mut data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).write().await;
         if let Some(index) = data.iter().position(|w| w.id == workflow.id) {
+            match data.iter().position(|w| w.name == workflow.name) {
+                Some(idx) => {
+                    if idx != index {
+                        return Err(AppError::Conflict(format!(
+                            "工作流路径已存在：path={}",
+                            workflow.name
+                        )));
+                    }
+                }
+                None => {}
+            };
             data[index] = workflow.clone();
             save_config(&data);
             return Ok(Json(workflow));
@@ -124,7 +135,37 @@ pub async fn get(Path(id): Path<String>) -> Result<Json<Workflow>, AppError> {
     if let Some(workflow) = data.iter().find(|w| w.id == Some(id.clone())) { Ok(Json(workflow.clone())) } else { Err(AppError::NotFound(format!("Workflow 不存在: id={}", id))) }
 }
 
-/// 执行
+/// 执行工作流
+
+/// 根据路径执行工作流
+pub async fn execute_path(Path(path): Path<String>, Query(param): Query<WorkflowReqParam>) -> Response<Body> {
+    let data = WORKFLOWS.get_or_init(|| Arc::new(RwLock::new(load_config()))).read().await;
+    let index = match data.iter().position(|w| w.name == path.clone()) {
+        Some(idx) => idx,
+        None => {
+            return (
+                axum::http::StatusCode::OK,
+                format!("工作流不存在：path={}", path),
+            )
+                .into_response();
+        }
+    };
+    let workflow = data[index].clone(); // 克隆 workflow 以避免锁持有太久
+    drop(data); // 尽早释放锁
+
+    if workflow.nodes.iter().any(|node| node.kind == "output") {
+        let output = run_workflow(workflow, None, true, param.input).await.unwrap();
+        return (axum::http::StatusCode::OK, output).into_response();
+    }
+
+    let (sender, receiver) = mpsc::unbounded_channel();
+
+    tokio::spawn(async move {
+        let _ = run_workflow(workflow, Some(sender), true, param.input).await;
+    });
+
+    sse_response(receiver).into_response()
+}
 
 pub async fn execute_workflow(Json(workflow): Json<Workflow>) -> impl IntoResponse {
     let (sender, receiver) = mpsc::unbounded_channel();
@@ -167,25 +208,31 @@ pub async fn execute(Path(id): Path<String>, Query(param): Query<WorkflowReqPara
 async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<Event, Infallible>>>, record_execution: bool, input: Option<String>) -> anyhow::Result<String> {
     let mut result = String::new();
     let edges = workflow.edges.clone();
-    
+
     // 创建节点连接映射，支持条件节点的 true/false 输出
     let mut next_node_map: HashMap<(String, Option<String>), String> = HashMap::new();
     for edge in &edges {
         // 检查边是否有 sourceHandle（用于条件节点的 true/false 输出）
         if let Some(source_handle) = &edge.source_handle {
             // 使用 sourceHandle 作为输出标识符（条件节点的 true/false 输出）
-            next_node_map.insert((edge.source.clone(), Some(source_handle.clone())), edge.target.clone());
-            info!("添加条件连接: ({}, {:?}) -> {}", edge.source, source_handle, edge.target);
+            next_node_map.insert(
+                (edge.source.clone(), Some(source_handle.clone())),
+                edge.target.clone(),
+            );
+            info!(
+                "添加条件连接: ({}, {:?}) -> {}",
+                edge.source, source_handle, edge.target
+            );
         } else {
             // 普通边
             next_node_map.insert((edge.source.clone(), None), edge.target.clone());
             info!("添加普通连接: ({}, None) -> {}", edge.source, edge.target);
         }
     }
-    
+
     // 打印完整的next_node_map用于调试
     info!("完整的next_node_map: {:?}", next_node_map);
-    
+
     let mut nodes = workflow.nodes.clone();
 
     // 找出起始节点（没有前驱的节点）
@@ -215,10 +262,10 @@ async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<
                 match excute_node(node, &sender).await {
                     Ok((node_logs, output)) => {
                         logs.extend(node_logs);
-                        
+
                         // 存储节点输出结果
                         node_outputs.insert(node_id.clone(), output.clone());
-                        
+
                         if node.kind == "output" {
                             result = output;
                         }
@@ -234,7 +281,7 @@ async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<
 
         // 构建下一层节点
         let mut next_nodes = Vec::new();
-        
+
         for node_id in &start_nodes {
             if let Some(node) = nodes.iter().find(|n| n.id == *node_id) {
                 if node.kind == "condition" {
@@ -242,14 +289,14 @@ async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<
                     if let Some(output) = node_outputs.get(node_id) {
                         let output_str = output.as_str();
                         info!("条件节点 {} 实际输出: {}", node_id, output_str);
-                        
+
                         // 使用实际输出匹配source_handle
                         let next_node = next_node_map.get(&(node_id.clone(), Some(output_str.to_string())));
-                        
+
                         if let Some(next_node) = next_node {
                             info!("找到条件节点 {} 的后续节点: {}", node_id, next_node);
                             next_nodes.push(next_node.clone());
-                            
+
                             // 获取条件节点的输入值作为下一节点的输入
                             if let Some(input_value) = input_map.get(node_id) {
                                 input_map.insert(next_node.clone(), input_value.clone());
@@ -263,7 +310,7 @@ async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<
                     if let Some(next_node) = next_node_map.get(&(node_id.clone(), None)) {
                         info!("添加普通节点 {} 的后续节点: {}", node_id, next_node);
                         next_nodes.push(next_node.clone());
-                        
+
                         // 使用当前节点的输出作为下一节点的输入
                         if let Some(output) = node_outputs.get(node_id) {
                             input_map.insert(next_node.clone(), output.clone());
@@ -272,7 +319,7 @@ async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<
                 }
             }
         }
-        
+
         start_nodes = next_nodes;
 
         if !has_more || start_nodes.is_empty() {

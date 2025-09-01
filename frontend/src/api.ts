@@ -39,9 +39,11 @@ export const apiRequestWithErrorHandling = async (
   options: RequestInit = {},
 ) => {
   const response = await apiRequest(endpoint, options);
-  
+
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    console.log(response);
+    // throw new Error(`HTTP error! status: ${response.status}`);
+    throw new Error(`${await response.text()}`);
   }
 
   return response;
