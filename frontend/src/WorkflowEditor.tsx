@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { apiRequestWithErrorHandling as apiRequest } from "./api";
 import {
   ReactFlow,
   addEdge,
@@ -217,15 +218,10 @@ const WorkflowEditor: React.FC = () => {
     };
 
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/workflow/run`,
+      const response = await apiRequest(
+        "/workflow/run",
         {
           method: "POST",
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify(workflowData),
         },
       );
@@ -324,15 +320,10 @@ const WorkflowEditor: React.FC = () => {
     };
 
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/workflow`,
+      const response = await apiRequest(
+        "/workflow",
         {
           method: "POST",
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify(workflowData),
         },
       );
@@ -353,16 +344,7 @@ const WorkflowEditor: React.FC = () => {
 
   const loadSavedWorkflows = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/workflows`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      const response = await apiRequest("/workflows");
       if (response.ok) {
         const workflows = await response.json();
         setSavedWorkflows(workflows);
@@ -396,16 +378,7 @@ const WorkflowEditor: React.FC = () => {
   // 从服务器加载指定ID的工作流
   const loadWorkflowById = async (workflowId: string) => {
     try {
-      const token = localStorage.getItem('auth_token');
-      const workflows = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/workflows`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      const workflows = await apiRequest("/workflows");
       if (workflows.ok) {
         const data = await workflows.json();
         const workflow = data.find((w: any) => w.id === workflowId);
@@ -482,15 +455,10 @@ const WorkflowEditor: React.FC = () => {
     try {
       if (id) {
         // 更新现有工作流
-        const token = localStorage.getItem('auth_token');
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/workflow`,
+        const response = await apiRequest(
+          "/workflow",
           {
             method: "POST",
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
             body: JSON.stringify(workflowData),
           },
         );
@@ -503,15 +471,10 @@ const WorkflowEditor: React.FC = () => {
         }
       } else {
         // 创建新工作流
-        const token = localStorage.getItem('auth_token');
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/workflow`,
+        const response = await apiRequest(
+          "/workflow",
           {
             method: "POST",
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
             body: JSON.stringify(workflowData),
           },
         );

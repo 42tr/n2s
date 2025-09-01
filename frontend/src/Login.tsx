@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "./AuthContext";
+import { apiRequest } from "./api";
 import "./Login.css";
 
 const Login: React.FC = () => {
@@ -17,14 +18,9 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const endpoint = isLogin
-        ? `${import.meta.env.VITE_API_URL}/api/login`
-        : `${import.meta.env.VITE_API_URL}/api/register`;
-      const response = await fetch(endpoint, {
+      const endpoint = isLogin ? "/login" : "/register";
+      const response = await apiRequest(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(
           isLogin
             ? { username, password }
@@ -36,29 +32,43 @@ const Login: React.FC = () => {
         const data = await response.json();
         login(data.token, username);
       } else {
-        if (!isLogin) {
-          // 注册错误处理
-          switch (response.status) {
-            case 400:
-              setError("密码长度至少6位");
-              break;
-            case 403:
-              setError("注册码错误，请检查注册码");
-              break;
-            case 409:
-              setError("用户名已存在，请选择其他用户名");
-              break;
-            default:
-              setError("注册失败，请稍后重试");
-          }
+        // 尝试获取后端返回的错误信息
+        let errorMessage = "";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || "";
+        } catch (e) {
+          // 如果无法解析JSON，使用默认错误信息
+        }
+
+        if (errorMessage) {
+          setError(errorMessage);
         } else {
-          // 登录错误处理
-          switch (response.status) {
-            case 401:
-              setError("用户名或密码错误");
-              break;
-            default:
-              setError("登录失败，请稍后重试");
+          // 如果后端没有返回具体错误信息，使用默认错误处理
+          if (!isLogin) {
+            // 注册错误处理
+            switch (response.status) {
+              case 400:
+                setError("密码长度至少6位");
+                break;
+              case 403:
+                setError("注册码错误，请检查注册码");
+                break;
+              case 409:
+                setError("用户名已存在，请选择其他用户名");
+                break;
+              default:
+                setError("注册失败，请稍后重试");
+            }
+          } else {
+            // 登录错误处理
+            switch (response.status) {
+              case 401:
+                setError("用户名或密码错误");
+                break;
+              default:
+                setError("登录失败，请稍后重试");
+            }
           }
         }
       }

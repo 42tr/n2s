@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { apiRequestWithErrorHandling as apiRequest } from "./api";
 import {
   ReactFlow,
   Background,
@@ -51,16 +52,7 @@ const ExecutionHistory: React.FC = () => {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/workflow/${id}/history`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      const response = await apiRequest(`/workflow/${id}/history`);
       if (response.ok) {
         const data = await response.json();
         const executionsList = data || [];
