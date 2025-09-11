@@ -210,39 +210,28 @@ async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<
     let edges = workflow.edges.clone();
 
     // 创建节点连接映射，支持条件节点的 true/false 输出
-    let mut next_node_map: HashMap<(String, Option<String>), String> = HashMap::new();
+    let mut next_node_map: HashMap<(String, Option<String>), Vec<(String, Option<String>)>> = HashMap::new();
     for edge in &edges {
-        // 检查边是否有 sourceHandle（用于条件节点的 true/false 输出）
-        if let Some(source_handle) = &edge.source_handle {
-            // 使用 sourceHandle 作为输出标识符（条件节点的 true/false 输出）
-            next_node_map.insert(
-                (edge.source.clone(), Some(source_handle.clone())),
-                edge.target.clone(),
-            );
-            info!(
-                "添加条件连接: ({}, {:?}) -> {}",
-                edge.source, source_handle, edge.target
-            );
-        } else {
-            // 普通边
-            next_node_map.insert((edge.source.clone(), None), edge.target.clone());
-            info!("添加普通连接: ({}, None) -> {}", edge.source, edge.target);
-        }
+        let source = edge.source.clone();
+        let source_handle = edge.source_handle.clone();
+        let target = edge.target.clone();
+        let target_handle = edge.target_handle.clone();
+
+        next_node_map.entry((source, source_handle)).or_default().push((target, target_handle));
     }
 
-    // 打印完整的next_node_map用于调试
     info!("完整的next_node_map: {:?}", next_node_map);
 
     let mut nodes = workflow.nodes.clone();
 
     // 找出起始节点（没有前驱的节点）
-    let filter_nodes: Vec<String> = edges.iter().map(|edge| edge.target.clone()).collect();
-    let mut start_nodes: Vec<String> = nodes.iter().filter(|node| !filter_nodes.contains(&node.id)).map(|node| node.id.clone()).collect();
+    let target_nodes: Vec<String> = edges.iter().map(|edge| edge.target.clone()).collect();
+    let mut start_nodes: Vec<String> = nodes.iter().filter(|node| !target_nodes.contains(&node.id)).map(|node| node.id.clone()).collect();
 
-    let mut input_map: HashMap<String, String> = HashMap::new();
+    let mut input_map: HashMap<String, Vec<(Option<String>, String)>> = HashMap::new();
     if let Some(input) = input {
         for node_id in start_nodes.clone() {
-            input_map.insert(node_id, input.clone());
+            input_map.entry(node_id).or_default().push((None, input.clone()));
         }
     }
 
@@ -256,8 +245,11 @@ async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<
         // 执行当前层的所有节点
         for node_id in &start_nodes {
             if let Some(node) = nodes.iter_mut().find(|n| n.id == *node_id) {
-                if let Some(input) = input_map.get(node_id) {
-                    node.reset_config(input);
+                if let Some(inputs) = input_map.get_mut(node_id) {
+                    // Sort inputs based on target_handle
+                    inputs.sort_by(|a, b| a.0.cmp(&b.0));
+                    let string_inputs: Vec<String> = inputs.iter().map(|s| s.1.clone()).collect();
+                    node.reset_config(&string_inputs);
                 }
                 match excute_node(node, &sender).await {
                     Ok((node_logs, output)) => {
@@ -280,44 +272,32 @@ async fn run_workflow(workflow: Workflow, sender: Option<UnboundedSender<Result<
         }
 
         // 构建下一层节点
-        let mut next_nodes = Vec::new();
+        let mut next_nodes_map: HashMap<String, Vec<(Option<String>, String)>> = HashMap::new();
 
         for node_id in &start_nodes {
             if let Some(node) = nodes.iter().find(|n| n.id == *node_id) {
+                let output = node_outputs.get(node_id).cloned().unwrap_or_default();
+
                 if node.kind == "condition" {
-                    // 条件节点：根据实际输出结果选择后续节点
-                    if let Some(output) = node_outputs.get(node_id) {
-                        let output_str = output.as_str();
-                        info!("条件节点 {} 实际输出: {}", node_id, output_str);
-
-                        // 使用实际输出匹配source_handle
-                        let next_node = next_node_map.get(&(node_id.clone(), Some(output_str.to_string())));
-
-                        if let Some(next_node) = next_node {
-                            info!("找到条件节点 {} 的后续节点: {}", node_id, next_node);
-                            next_nodes.push(next_node.clone());
-
-                            // 获取条件节点的输入值作为下一节点的输入
-                            if let Some(input_value) = input_map.get(node_id) {
-                                input_map.insert(next_node.clone(), input_value.clone());
-                            }
-                        } else {
-                            info!("未找到条件节点 {} 输出 {} 的后续节点", node_id, output_str);
+                    if let Some(targets) = next_node_map.get(&(node_id.clone(), Some(output.clone()))) {
+                        for (target_node, target_handle) in targets {
+                            next_nodes_map.entry(target_node.clone()).or_default().push((target_handle.clone(), output.clone()));
                         }
                     }
                 } else {
-                    // 普通节点：添加所有后继节点
-                    if let Some(next_node) = next_node_map.get(&(node_id.clone(), None)) {
-                        info!("添加普通节点 {} 的后续节点: {}", node_id, next_node);
-                        next_nodes.push(next_node.clone());
-
-                        // 使用当前节点的输出作为下一节点的输入
-                        if let Some(output) = node_outputs.get(node_id) {
-                            input_map.insert(next_node.clone(), output.clone());
+                    if let Some(targets) = next_node_map.get(&(node_id.clone(), None)) {
+                        for (target_node, target_handle) in targets {
+                            next_nodes_map.entry(target_node.clone()).or_default().push((target_handle.clone(), output.clone()));
                         }
                     }
                 }
             }
+        }
+
+        let mut next_nodes = Vec::new();
+        for (node_id, inputs) in next_nodes_map {
+            next_nodes.push(node_id.clone());
+            input_map.insert(node_id, inputs);
         }
 
         start_nodes = next_nodes;

@@ -866,6 +866,45 @@ const CustomNode: React.FC<CustomNodeProps> = ({
           />
         </>
       );
+    } else if (data.nodeType === "lua-script") {
+      return (
+        <>
+          <Handle
+            type="target"
+            position={Position.Left}
+            id="input"
+            style={{
+              top: "30%",
+              background: "#555",
+              width: "8px",
+              height: "8px",
+              border: "2px solid white",
+            }}
+          />
+          <Handle
+            type="target"
+            position={Position.Left}
+            id="input_1"
+            style={{
+              top: "70%",
+              background: "#555",
+              width: "8px",
+              height: "8px",
+              border: "2px solid white",
+            }}
+          />
+          <Handle
+            type="source"
+            position={Position.Right}
+            style={{
+              background: "#555",
+              width: "8px",
+              height: "8px",
+              border: "2px solid white",
+            }}
+          />
+        </>
+      );
     }
 
     return (

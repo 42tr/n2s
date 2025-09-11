@@ -20,9 +20,22 @@ pub struct Node {
 }
 
 impl Node {
-    pub fn reset_config(&mut self, input: &String) {
+    pub fn reset_config(&mut self, inputs: &Vec<String>) {
+        if inputs.is_empty() {
+            return;
+        }
         for (_key, value) in self.config.iter_mut() {
-            *value = value.replace("${input}", &input);
+            let mut new_value = value.clone();
+            if !inputs.is_empty() {
+                new_value = new_value.replace("${input}", &inputs[0]);
+            }
+            if inputs.len() > 1 {
+                for i in 1..inputs.len() {
+                    let placeholder = format!("${{input_{}}}", i);
+                    new_value = new_value.replace(&placeholder, &inputs[i]);
+                }
+            }
+            *value = new_value;
         }
     }
 }
@@ -33,6 +46,8 @@ pub struct Edge {
     pub target: String,
     #[serde(rename = "sourceHandle", skip_serializing_if = "Option::is_none")]
     pub source_handle: Option<String>,
+    #[serde(rename = "targetHandle", skip_serializing_if = "Option::is_none")]
+    pub target_handle: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

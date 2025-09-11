@@ -46,28 +46,34 @@ const WorkflowEditor: React.FC = () => {
   const onConnect = useCallback(
     (params: Connection) => {
       // 处理条件节点的特殊连接
-      const sourceNode = nodes.find(node => node.id === params.source);
-      if (sourceNode && sourceNode.data.nodeType === 'condition') {
+      const sourceNode = nodes.find((node) => node.id === params.source);
+      if (sourceNode && sourceNode.data.nodeType === "condition") {
         // 如果是从条件节点连出的边，使用 sourceHandle 作为输出标识符
         // 注意：sourceHandle 可能是 'true' 或 'false' 字符串
         console.log("条件节点连接参数:", params);
-        
+
         // 确保 sourceHandle 存在，即使是字符串 "false"
         if (params.sourceHandle !== null && params.sourceHandle !== undefined) {
           console.log("条件节点连接:", params.sourceHandle);
           // 创建带有输出标识符的边 ID
           const edgeWithCondition = {
             ...params,
-            id: `edge-${params.source}@${params.sourceHandle}-${params.target}`,
+            id: `edge-${params.source}@${params.sourceHandle}-${params.target}@${params.targetHandle}`,
             // 保留原始 source 和 sourceHandle，确保sourceHandle被正确序列化
-            sourceHandle: params.sourceHandle
+            sourceHandle: params.sourceHandle,
           };
-          return setEdges((eds) => addEdge(edgeWithCondition as Connection, eds));
+          return setEdges((eds) =>
+            addEdge(edgeWithCondition as Connection, eds),
+          );
         }
       }
-      
+
       // 普通边的处理
-      return setEdges((eds) => addEdge(params, eds));
+      const newEdge = {
+        ...params,
+        id: `edge-${params.source}-${params.target}-${params.targetHandle}`,
+      };
+      return setEdges((eds) => addEdge(newEdge, eds));
     },
     [setEdges, nodes],
   );
@@ -140,10 +146,10 @@ const WorkflowEditor: React.FC = () => {
   const updateNodeConfig = useCallback(
     (nodeId: string, config: any) => {
       console.log("更新节点配置:", nodeId, config);
-      
+
       // 从config中提取label
       const { label, ...restConfig } = config;
-      
+
       setNodes((nds) =>
         nds.map((node) =>
           node.id === nodeId
@@ -214,17 +220,15 @@ const WorkflowEditor: React.FC = () => {
         source: edge.source,
         target: edge.target,
         sourceHandle: edge.sourceHandle, // 保留sourceHandle以记录条件节点的true/false连接
+        targetHandle: edge.targetHandle,
       })),
     };
 
     try {
-      const response = await apiRequest(
-        "/workflow/run",
-        {
-          method: "POST",
-          body: JSON.stringify(workflowData),
-        },
-      );
+      const response = await apiRequest("/workflow/run", {
+        method: "POST",
+        body: JSON.stringify(workflowData),
+      });
 
       if (!response.ok) {
         throw new Error("执行工作流失败");
@@ -316,17 +320,15 @@ const WorkflowEditor: React.FC = () => {
         source: edge.source,
         target: edge.target,
         sourceHandle: edge.sourceHandle, // 保留sourceHandle以记录条件节点的true/false连接
+        targetHandle: edge.targetHandle,
       })),
     };
 
     try {
-      const response = await apiRequest(
-        "/workflow",
-        {
-          method: "POST",
-          body: JSON.stringify(workflowData),
-        },
-      );
+      const response = await apiRequest("/workflow", {
+        method: "POST",
+        body: JSON.stringify(workflowData),
+      });
 
       if (response.ok) {
         const result = await response.json();
@@ -418,10 +420,13 @@ const WorkflowEditor: React.FC = () => {
 
     // 转换边格式
     const loadedEdges = workflow.edges.map((edge: any) => ({
-      id: edge.sourceHandle ? `edge-${edge.source}@${edge.sourceHandle}-${edge.target}` : `edge-${edge.source}-${edge.target}`,
+      id: edge.sourceHandle
+        ? `edge-${edge.source}@${edge.sourceHandle}-${edge.target}@${edge.targetHandle}`
+        : `edge-${edge.source}-${edge.target}@${edge.targetHandle}`,
       source: edge.source,
       target: edge.target,
       sourceHandle: edge.sourceHandle,
+      targetHandle: edge.targetHandle,
     }));
 
     setNodes(loadedNodes);
@@ -449,19 +454,17 @@ const WorkflowEditor: React.FC = () => {
         source: edge.source,
         target: edge.target,
         sourceHandle: edge.sourceHandle, // 保留sourceHandle以记录条件节点的true/false连接
+        targetHandle: edge.targetHandle,
       })),
     };
 
     try {
       if (id) {
         // 更新现有工作流
-        const response = await apiRequest(
-          "/workflow",
-          {
-            method: "POST",
-            body: JSON.stringify(workflowData),
-          },
-        );
+        const response = await apiRequest("/workflow", {
+          method: "POST",
+          body: JSON.stringify(workflowData),
+        });
 
         if (response.ok) {
           alert("工作流保存成功！");
@@ -471,13 +474,10 @@ const WorkflowEditor: React.FC = () => {
         }
       } else {
         // 创建新工作流
-        const response = await apiRequest(
-          "/workflow",
-          {
-            method: "POST",
-            body: JSON.stringify(workflowData),
-          },
-        );
+        const response = await apiRequest("/workflow", {
+          method: "POST",
+          body: JSON.stringify(workflowData),
+        });
 
         if (response.ok) {
           const result = await response.json();
