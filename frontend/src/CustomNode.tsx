@@ -27,7 +27,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
   const [showErrorLog, setShowErrorLog] = useState(false);
   const [isEditingLabel, setIsEditingLabel] = useState(false);
   const [editedLabel, setEditedLabel] = useState(data.label);
-  
+
   // 确保editedLabel与data.label保持同步
   React.useEffect(() => {
     setEditedLabel(data.label);
@@ -61,6 +61,14 @@ const CustomNode: React.FC<CustomNodeProps> = ({
       case "postgresql":
         borderColor = "#336791"; // PostgreSQL blue
         backgroundColor = "#E8F4FD"; // Light blue background
+        break;
+      case "read-file":
+        borderColor = "#f44336";
+        backgroundColor = "#ffebee";
+        break;
+      case "write-file":
+        borderColor = "#9e9e9e";
+        backgroundColor = "#f5f5f5";
         break;
     }
 
@@ -112,6 +120,10 @@ const CustomNode: React.FC<CustomNodeProps> = ({
         return "🧩";
       case "postgresql":
         return "🐘";
+      case "read-file":
+        return "📄";
+      case "write-file":
+        return "📝";
       default:
         return "⚙️";
     }
@@ -714,6 +726,95 @@ const CustomNode: React.FC<CustomNodeProps> = ({
           </div>
         );
 
+      case "read-file":
+        return (
+          <div style={{ padding: "8px", borderTop: "1px solid #eee" }}>
+            <div
+              style={{
+                marginBottom: "4px",
+                fontSize: "12px",
+                fontWeight: "bold",
+              }}
+            >
+              文件路径:
+            </div>
+            <input
+              type="text"
+              value={config.path || ""}
+              onChange={(e) => handleConfigChange("path", e.target.value)}
+              onFocus={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              placeholder="请输入文件路径"
+              style={{ width: "100%", padding: "4px", fontSize: "12px" }}
+            />
+          </div>
+        );
+
+      case "write-file":
+        return (
+          <div style={{ padding: "8px", borderTop: "1px solid #eee" }}>
+            <div style={{ marginBottom: "8px" }}>
+              <div
+                style={{
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  marginBottom: "2px",
+                }}
+              >
+                文件路径:
+              </div>
+              <input
+                type="text"
+                value={config.path || ""}
+                onChange={(e) => handleConfigChange("path", e.target.value)}
+                onFocus={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                placeholder="请输入文件路径"
+                style={{
+                  width: "100%",
+                  padding: "4px 6px",
+                  fontSize: "12px",
+                  border: "1px solid #ddd",
+                  borderRadius: "3px",
+                  boxSizing: "border-box",
+                  outline: "none",
+                }}
+              />
+            </div>
+
+            <div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  marginBottom: "2px",
+                }}
+              >
+                文件内容:
+              </div>
+              <textarea
+                value={config.content || ""}
+                onChange={(e) => handleConfigChange("content", e.target.value)}
+                onFocus={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                placeholder="请输入文件内容"
+                style={{
+                  width: "100%",
+                  minHeight: "60px",
+                  padding: "4px",
+                  border: "1px solid #ddd",
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                  resize: "vertical",
+                }}
+              />
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -721,7 +822,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 
   const showLeftHandle = data.nodeType !== "input";
   const showRightHandle = data.nodeType !== "output";
-  
+
   // 条件节点的特殊处理，添加 true 和 false 两个输出
   const renderHandles = () => {
     if (data.nodeType === "condition") {
@@ -766,7 +867,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
         </>
       );
     }
-    
+
     return (
       <>
         {showLeftHandle && (
@@ -1022,7 +1123,9 @@ const CustomNode: React.FC<CustomNodeProps> = ({
                   lineHeight: "1.4",
                 }}
               >
-                {data.nodeType === "input" ? truncateText(data.output) : data.output}
+                {data.nodeType === "input"
+                  ? truncateText(data.output)
+                  : data.output}
               </div>
             </div>
           )}
@@ -1039,17 +1142,21 @@ const CustomNode: React.FC<CustomNodeProps> = ({
             }}
           >
             <div
-              style={{ 
-                marginBottom: "8px", 
-                fontSize: "10px", 
+              style={{
+                marginBottom: "8px",
+                fontSize: "10px",
                 color: "#666",
                 wordBreak: "break-all",
-                overflowWrap: "break-word"
+                overflowWrap: "break-word",
               }}
             >
-              当前配置: {data.nodeType === "input" && config.input ? 
-                JSON.stringify({...config, input: truncateText(config.input)}) : 
-                JSON.stringify(config)}
+              当前配置:{" "}
+              {data.nodeType === "input" && config.input
+                ? JSON.stringify({
+                    ...config,
+                    input: truncateText(config.input),
+                  })
+                : JSON.stringify(config)}
             </div>
             <button
               onClick={() => setIsEditing(false)}

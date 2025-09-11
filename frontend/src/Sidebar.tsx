@@ -14,6 +14,8 @@ const Sidebar: React.FC = () => {
     { type: "http-request", label: "HTTP 请求", icon: "🌐" },
     { type: "lua-script", label: "LUA 脚本", icon: "🧩" },
     { type: "postgresql", label: "PostgreSQL", icon: "🐘" },
+    { type: "read-file", label: "读文件", icon: "📄" },
+    { type: "write-file", label: "写文件", icon: "📝" },
   ];
 
   return (

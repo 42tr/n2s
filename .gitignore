@@ -3,3 +3,4 @@ workflows.json
 executions.json
 users.json
 logs
+data/

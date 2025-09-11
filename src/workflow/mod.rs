@@ -361,6 +361,8 @@ async fn excute_node(node: &Node, sender: &Option<UnboundedSender<Result<Event, 
         "lua-script" => node::lua_script::execute(node, sender).await?,
         "postgresql" => node::postgresql::execute(node, sender).await?,
         "condition" => node::condition::execute(node, sender).await?,
+        "read-file" => node::read_file::execute(node, sender).await?,
+        "write-file" => node::write_file::execute(node, sender).await?,
         _ => (vec![], "".to_string()),
     };
     logs.extend(node_logs);
