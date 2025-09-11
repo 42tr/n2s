@@ -56,22 +56,22 @@ const WorkflowEditor: React.FC = () => {
         if (params.sourceHandle !== null && params.sourceHandle !== undefined) {
           console.log("条件节点连接:", params.sourceHandle);
           // 创建带有输出标识符的边 ID
-          const edgeWithCondition = {
+          const edgeWithCondition: Edge = {
             ...params,
             id: `edge-${params.source}@${params.sourceHandle}-${params.target}@${params.targetHandle}`,
-            // 保留原始 source 和 sourceHandle，确保sourceHandle被正确序列化
             sourceHandle: params.sourceHandle,
+            targetHandle: params.targetHandle,
           };
-          return setEdges((eds) =>
-            addEdge(edgeWithCondition as Connection, eds),
-          );
+          return setEdges((eds) => addEdge(edgeWithCondition, eds));
         }
       }
 
       // 普通边的处理
-      const newEdge = {
+      const newEdge: Edge = {
         ...params,
         id: `edge-${params.source}-${params.target}-${params.targetHandle}`,
+        sourceHandle: params.sourceHandle,
+        targetHandle: params.targetHandle,
       };
       return setEdges((eds) => addEdge(newEdge, eds));
     },
@@ -219,8 +219,8 @@ const WorkflowEditor: React.FC = () => {
       edges: edges.map((edge) => ({
         source: edge.source,
         target: edge.target,
-        sourceHandle: edge.sourceHandle, // 保留sourceHandle以记录条件节点的true/false连接
-        targetHandle: edge.targetHandle,
+        sourceHandle: edge.sourceHandle ?? null,
+        targetHandle: edge.targetHandle ?? null,
       })),
     };
 
@@ -319,8 +319,8 @@ const WorkflowEditor: React.FC = () => {
       edges: edges.map((edge) => ({
         source: edge.source,
         target: edge.target,
-        sourceHandle: edge.sourceHandle, // 保留sourceHandle以记录条件节点的true/false连接
-        targetHandle: edge.targetHandle,
+        sourceHandle: edge.sourceHandle ?? null,
+        targetHandle: edge.targetHandle ?? null,
       })),
     };
 
@@ -453,8 +453,8 @@ const WorkflowEditor: React.FC = () => {
       edges: edges.map((edge) => ({
         source: edge.source,
         target: edge.target,
-        sourceHandle: edge.sourceHandle, // 保留sourceHandle以记录条件节点的true/false连接
-        targetHandle: edge.targetHandle,
+        sourceHandle: edge.sourceHandle ?? null,
+        targetHandle: edge.targetHandle ?? null,
       })),
     };
 
