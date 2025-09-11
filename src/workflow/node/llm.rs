@@ -1,6 +1,8 @@
 use std::convert::Infallible;
 
-use async_openai::{Client, config::OpenAIConfig, types::CreateCompletionRequestArgs};
+use async_openai::{
+    Client, config::OpenAIConfig, types::{ChatCompletionRequestMessage, ChatCompletionRequestUserMessageArgs}
+};
 use axum::response::sse::Event;
 use chrono::Utc;
 use futures::StreamExt;
@@ -29,17 +31,24 @@ pub async fn execute(node: &Node, sender: &Option<UnboundedSender<Result<Event, 
     logs.push(Log { timestamp: Utc::now(), data: log_data.clone() });
     sse::send_json(log_data, sender).unwrap();
 
-    let request = CreateCompletionRequestArgs::default().model(model).n(1).prompt(prompt).stream(true).max_tokens(1024_u32).build()?;
+    let request = async_openai::types::CreateChatCompletionRequestArgs::default()
+        .model(model)
+        .messages(vec![ChatCompletionRequestMessage::User(
+            ChatCompletionRequestUserMessageArgs::default().content(prompt).build()?,
+        )])
+        .build()?;
 
-    let mut stream = client.completions().create_stream(request).await?;
+    let mut stream = client.chat().create_stream(request).await?;
 
     while let Some(response) = stream.next().await {
         match response {
             Ok(ccr) => ccr.choices.iter().for_each(|c| {
-                let log_data = LogData { kind: "ai_response_chunk".to_string(), data: Some(c.text.clone()), node_id: node.id.clone(), node_type: None, result: None };
+                let log_data = LogData { kind: "ai_response_chunk".to_string(), data: c.delta.content.clone(), node_id: node.id.clone(), node_type: None, result: None };
                 logs.push(Log { timestamp: Utc::now(), data: log_data.clone() });
                 sse::send_json(log_data, sender).unwrap();
-                output.push_str(&c.text);
+                if let Some(content) = c.delta.content.as_ref() {
+                    output.push_str(content);
+                }
             }),
             Err(e) => {
                 eprintln!("{}", e);
